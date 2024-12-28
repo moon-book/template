@@ -33,18 +33,15 @@ class ImagePreviewWidget extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: Container(
-                  constraints: constraints ??
-                      BoxConstraints(maxWidth: width ?? double.infinity),
+                  constraints: constraints ?? BoxConstraints(maxWidth: width ?? double.infinity),
                   child: CachedNetworkImage(
                     width: width,
                     height: height,
                     alignment: Alignment.centerLeft,
                     fit: fit ?? BoxFit.fill,
                     imageUrl: imageUrl.trim(),
-                    placeholder: (context, url) =>
-                        const Center(child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) =>
-                        const Center(child: Icon(Icons.error)),
+                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
                   ),
                 ),
               ),
@@ -73,9 +70,8 @@ class ImagePreviewWidget extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.8,
-                        maxHeight: MediaQuery.of(context).size.height * 0.8),
+                    constraints:
+                        BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8, maxHeight: MediaQuery.of(context).size.height * 0.8),
                     child: Image.network(
                       imageUrl.trim(),
                       fit: BoxFit.contain,
