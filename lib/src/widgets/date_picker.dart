@@ -48,10 +48,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
     controller = widget.controller ?? TextEditingController();
     initDate = widget.initDate;
     if (widget.enableInitValue) {
-      controller.text = (widget.initDate ?? DateTime.now())
-              .toString()
-              .toDateTimeString(format: 'yyyy-MM-dd') ??
-          '';
+      controller.text = (widget.initDate ?? DateTime.now()).toString().toDateTimeString(format: 'yyyy-MM-dd') ?? '';
     }
     super.initState();
   }
@@ -62,10 +59,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
       setState(() {
         initDate = widget.initDate;
         if (widget.enableInitValue) {
-          controller.text = (widget.initDate ?? DateTime.now())
-                  .toString()
-                  .toDateTimeString(format: 'yyyy-MM-dd') ??
-              '';
+          controller.text = (widget.initDate ?? DateTime.now()).toString().toDateTimeString(format: 'yyyy-MM-dd') ?? '';
         }
       });
     }
@@ -126,8 +120,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
                           keyboardType: TextInputType.multiline,
                           hintText: widget.hintText ?? widget.title,
                           backgroundColor: Colors.white,
-                          borderColor:
-                              field.hasError ? Colors.red : Colors.transparent,
+                          borderColor: field.hasError ? Colors.red : Colors.transparent,
                           hintStyle: widget.hintStyle,
                           // title: widget.title,
                           style: widget.style,
@@ -171,9 +164,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
                   // maxLines: 1,
                   text: TextSpan(
                     children: [
-                      TextSpan(
-                          text: widget.title,
-                          style: TextStyle(overflow: TextOverflow.ellipsis)),
+                      TextSpan(text: widget.title, style: TextStyle(overflow: TextOverflow.ellipsis)),
                       if (widget.isRequired)
                         const TextSpan(
                           text: "*",
@@ -199,8 +190,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
                           keyboardType: TextInputType.multiline,
                           hintText: widget.title,
                           backgroundColor: Colors.white,
-                          borderColor:
-                              field.hasError ? Colors.red : Colors.transparent,
+                          borderColor: field.hasError ? Colors.red : Colors.transparent,
 
                           // title: widget.title,
                           showShadow: true,
@@ -241,7 +231,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime(2000),
-      lastDate: DateTime(2025),
+      lastDate: DateTime(DateTime.now().year + 4),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -255,8 +245,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
       field.didChange(picked);
       setState(() {
         selectedDate = picked;
-        String date =
-            selectedDate.toString().toDateTimeString(format: "yyyy-MM-dd");
+        String date = selectedDate.toString().toDateTimeString(format: "yyyy-MM-dd");
         controller.text = date;
         widget.onChanged?.call(selectedDate);
       });
