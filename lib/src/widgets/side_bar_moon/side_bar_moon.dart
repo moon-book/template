@@ -19,6 +19,8 @@ class SidebarMoon extends StatefulWidget {
     this.onTapLogout,
     this.expandAll,
     this.isExpandedSideBar = true,
+    this.width,
+    this.showShadow = true,
   }) : super(key: key);
   Dio dio;
   int tagId;
@@ -28,6 +30,8 @@ class SidebarMoon extends StatefulWidget {
   Color? backgroundColor;
   bool? expandAll;
   bool isExpandedSideBar;
+  double? width;
+  bool showShadow;
 
   ///hàm này trả về icon theo iconurl từ be trả về nhé ae
   Widget Function(String iconUrl)? getIconWithName;
@@ -45,7 +49,7 @@ class SidebarMoon extends StatefulWidget {
   State<SidebarMoon> createState() => _SidebarMoonState();
 }
 
-class _SidebarMoonState extends State<SidebarMoon> {
+class _SidebarMoonState extends State<SidebarMoon> with AutomaticKeepAliveClientMixin {
   SideMenuController sideMenu = SideMenuController();
 
   late SideBarService _service;
@@ -154,6 +158,12 @@ class _SidebarMoonState extends State<SidebarMoon> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
   void didUpdateWidget(covariant SidebarMoon oldWidget) {
     if (oldWidget.isExpandedSideBar != widget.isExpandedSideBar) {
       setState(() {
@@ -165,6 +175,7 @@ class _SidebarMoonState extends State<SidebarMoon> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return sideBar();
   }
 
@@ -213,7 +224,7 @@ class _SidebarMoonState extends State<SidebarMoon> {
         return ScaleTransition(scale: animation, child: child);
       },
       child: Container(
-        width: isExpandedSideBar ? 250 : 40,
+        width: widget.width ?? (isExpandedSideBar ? 250 : 40),
         decoration: BoxDecoration(
           color: widget.backgroundColor ?? Colors.white,
           border: isExpandedSideBar
@@ -223,7 +234,7 @@ class _SidebarMoonState extends State<SidebarMoon> {
                   ),
                 )
               : null,
-          boxShadow: isExpandedSideBar
+          boxShadow: isExpandedSideBar && widget.showShadow
               ? [
                   AppBoxShadow.ksSmallShadow(
                     color: const Color.fromARGB(31, 144, 144, 144),
@@ -241,60 +252,71 @@ class _SidebarMoonState extends State<SidebarMoon> {
             if (features.isNotEmpty && isExpandedSideBar)
               Expanded(
                 child: Theme(
-                  data: ThemeData().copyWith(dividerColor: Colors.transparent),
-                  child: SideMenu(
-                    controller: sideMenu,
-                    items: List.generate(
-                      features.length,
-                      (index) {
-                        if (features[index].children.isEmpty) {
-                          //cha
-                          return SideMenuItem(
-                            title: features[index].name,
-                            onTap: (index, _) {
-                              sideMenu.changePage(index);
-                              widget.onChangeFeature?.call(features[index], context);
-                            },
-                            iconWidget: features[index].icon,
-                          );
-                        } else {
-                          //cha chua con
-                          return SideMenuExpansionItem(
-                            title: features[index].name,
-                            iconWidget: features[index].icon,
-                            // onTap: (index, c, isExpanded) {},
-                            children: List.generate(
-                              features[index].children.length,
-                              (i) {
-                                return SideMenuItem(
-                                  title: features[index].children[i].name,
-                                  onTap: (x, _) {
-                                    sideMenu.changePage(x);
-                                    widget.onChangeFeature?.call(features[index].children[i], context);
-                                  },
-                                  iconWidget: features[index].children[i].icon,
-                                );
+                  data: ThemeData().copyWith(
+                    dividerColor: Colors.transparent,
+
+                    // canvasColor: Colors.blue,
+                    // drawerTheme: DrawerThemeData(
+                    //   backgroundColor: Colors.red,
+                    // ),
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    child: SideMenu(
+                      controller: sideMenu,
+                      items: List.generate(
+                        features.length,
+                        (index) {
+                          if (features[index].children.isEmpty) {
+                            //cha
+                            return SideMenuItem(
+                              title: features[index].name,
+                              onTap: (index, _) {
+                                sideMenu.changePage(index);
+                                widget.onChangeFeature?.call(features[index], context);
                               },
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                    style: SideMenuStyle(
-                      selectedColor: Theme.of(context).primaryColor.withOpacity(0.12),
-                      backgroundColor: Colors.transparent,
-                      selectedTitleTextStyle: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).primaryColor,
+                              iconWidget: features[index].icon,
+                            );
+                          } else {
+                            //cha chua con
+                            return SideMenuExpansionItem(
+                              title: features[index].name,
+                              iconWidget: features[index].icon,
+                              // onTap: (index, c, isExpanded) {},
+                              children: List.generate(
+                                features[index].children.length,
+                                (i) {
+                                  return SideMenuItem(
+                                    title: features[index].children[i].name,
+                                    onTap: (x, _) {
+                                      sideMenu.changePage(x);
+                                      widget.onChangeFeature?.call(features[index].children[i], context);
+                                    },
+                                    iconWidget: features[index].children[i].icon,
+                                  );
+                                },
+                              ),
+                            );
+                          }
+                        },
                       ),
-                      unselectedTitleTextStyle: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
+                      style: SideMenuStyle(
+                        displayMode: SideMenuDisplayMode.open,
+                        selectedColor: Theme.of(context).primaryColor.withOpacity(0.12),
+                        backgroundColor: Colors.transparent,
+                        selectedTitleTextStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        unselectedTitleTextStyle: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14, color: Colors.black, // thêm màu cho mobile fallback
+                        ),
+                        arrowOpen: Theme.of(context).primaryColor,
                       ),
-                      arrowOpen: Theme.of(context).primaryColor,
+                      expansionStateListInit: initExpandedItem,
                     ),
-                    expansionStateListInit: initExpandedItem,
                   ),
                 ),
               ),
@@ -350,4 +372,8 @@ class _SidebarMoonState extends State<SidebarMoon> {
       ),
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }

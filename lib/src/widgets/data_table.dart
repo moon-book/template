@@ -72,7 +72,7 @@ class _DataTableCustomState extends State<DataTableCustom> {
           dataRowColor: WidgetStateProperty.all(widget.backgoundColor ?? Colors.white),
           columnSpacing: 12,
           horizontalMargin: widget.paddingHorzi ?? 12,
-
+          // minWidth:,
           headingRowHeight: 40,
           headingRowColor: WidgetStatePropertyAll(
             widget.headingColor ?? _themeColorEx?.ksPrimary,
