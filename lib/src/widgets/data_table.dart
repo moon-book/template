@@ -13,6 +13,8 @@ class DataTableCustom extends StatefulWidget {
     this.headingColor,
     this.borderRadius,
     this.backgoundColor,
+    this.minWidth,
+    // this.minHeight,
   });
   double? height;
   double? paddingHorzi;
@@ -25,6 +27,8 @@ class DataTableCustom extends StatefulWidget {
   Color? headingColor;
   double? borderRadius;
   Color? backgoundColor;
+  double? minWidth;
+  // double? minHeight;
   @override
   State<DataTableCustom> createState() => _DataTableCustomState();
 }
@@ -72,7 +76,8 @@ class _DataTableCustomState extends State<DataTableCustom> {
           dataRowColor: WidgetStateProperty.all(widget.backgoundColor ?? Colors.white),
           columnSpacing: 12,
           horizontalMargin: widget.paddingHorzi ?? 12,
-          // minWidth:,
+          minWidth: widget.minWidth,
+
           headingRowHeight: 40,
           headingRowColor: WidgetStatePropertyAll(
             widget.headingColor ?? _themeColorEx?.ksPrimary,
