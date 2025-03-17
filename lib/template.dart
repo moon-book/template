@@ -2,7 +2,6 @@
 library template;
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 // import 'package:animated_tree_view/tree_view/tree_node.dart';
@@ -11,7 +10,6 @@ import 'package:animated_custom_dropdown/custom_dropdown.dart';
 // import 'package:animated_tree_view/tree_view/widgets/indent.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
-import 'package:chewie/chewie.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:dio/dio.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -52,6 +50,7 @@ import 'dart:js' as js;
 import 'dart:ui_web' as ui;
 import 'package:random_string/random_string.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:template/src/utils/debouncer.dart';
 part 'src/widgets/toast.dart';
 part 'src/values/colors.dart';
 part 'src/widgets/text_field.dart';
@@ -82,3 +81,5 @@ part 'src/widgets/tab_container.dart';
 part 'src/widgets/react_icon.dart';
 part 'src/widgets/upload_mutiple_image.dart';
 part 'src/widgets/date_range_picker.dart';
+part 'src/widgets/load_more_list_view.dart';
+part 'src/widgets/load_more_grid_view.dart';
