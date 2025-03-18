@@ -54,7 +54,7 @@ class _LoadMoreGridViewState extends State<LoadMoreGridView> {
       itemCount: widget.itemCount,
       itemBuilder: widget.itemBuilder,
       gridDelegate: widget.gridDelegate ??
-          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2)
     );
   }
 
