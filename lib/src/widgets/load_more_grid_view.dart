@@ -23,7 +23,7 @@ class LoadMoreGridView extends StatefulWidget {
 }
 
 class _LoadMoreGridViewState extends State<LoadMoreGridView> {
-  final _debouncer = Debouncer(milliseconds: 250);
+  final _debouncer = Debouncer(milliseconds: 250,);
 
   @override
   void initState() {
