@@ -13,6 +13,7 @@ class TextFieldUrlOrUploadImage extends StatefulWidget {
     this.uploadImage,
     this.dio,
     this.baseUrl,
+    this.showShadow = true,
   });
   TextEditingController? controller;
   String? hintText;
@@ -24,6 +25,7 @@ class TextFieldUrlOrUploadImage extends StatefulWidget {
   Future<String?> Function(Uint8List s)? uploadImage;
   Dio? dio;
   String? baseUrl;
+  final bool showShadow;
   @override
   State<TextFieldUrlOrUploadImage> createState() => _TextFieldUrlOrUploadImageState();
 }
@@ -91,9 +93,11 @@ class _TextFieldUrlOrUploadImageState extends State<TextFieldUrlOrUploadImage> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Colors.white,
-        boxShadow: [
-          AppBoxShadow.ksSmallShadow(),
-        ],
+        boxShadow: widget.showShadow
+            ? [
+                AppBoxShadow.ksSmallShadow(),
+              ]
+            : null,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
