@@ -49,6 +49,7 @@ class _LoadMoreGridViewState extends State<LoadMoreGridView> {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
+      shrinkWrap: true,
       padding: widget.padding,
       controller: widget.scrollController,
       itemCount: widget.itemCount,
