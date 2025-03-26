@@ -25,7 +25,9 @@ class LoadMoreGridView extends StatefulWidget {
 }
 
 class _LoadMoreGridViewState extends State<LoadMoreGridView> {
-  final _debouncer = Debouncer(milliseconds: 250,);
+  final _debouncer = Debouncer(
+    milliseconds: 250,
+  );
 
   @override
   void initState() {
@@ -37,8 +39,7 @@ class _LoadMoreGridViewState extends State<LoadMoreGridView> {
     if (widget.scrollController != null && widget.onLoadMore != null) {
       widget.scrollController?.addListener(
         () {
-          if (widget.scrollController!.position.pixels >=
-              widget.scrollController!.position.maxScrollExtent) {
+          if (widget.scrollController!.position.pixels >= widget.scrollController!.position.maxScrollExtent) {
             _debouncer.run(() {
               widget.onLoadMore?.call();
             });
@@ -51,14 +52,12 @@ class _LoadMoreGridViewState extends State<LoadMoreGridView> {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      shrinkWrap: widget.shrinkWrap ?? false,
-      padding: widget.padding,
-      controller: widget.scrollController,
-      itemCount: widget.itemCount,
-      itemBuilder: widget.itemBuilder,
-      gridDelegate: widget.gridDelegate ??
-          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2)
-    );
+        shrinkWrap: widget.shrinkWrap ?? true,
+        padding: widget.padding,
+        controller: widget.scrollController,
+        itemCount: widget.itemCount,
+        itemBuilder: widget.itemBuilder,
+        gridDelegate: widget.gridDelegate ?? const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2));
   }
 
   @override
