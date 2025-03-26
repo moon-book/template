@@ -9,6 +9,7 @@ class LoadMoreGridView extends StatefulWidget {
     super.key,
     this.padding,
     this.gridDelegate,
+    this.shrinkWrap,
   });
 
   final int itemCount;
@@ -17,6 +18,7 @@ class LoadMoreGridView extends StatefulWidget {
   final Function? onLoadMore;
   final EdgeInsets? padding;
   final SliverGridDelegate? gridDelegate;
+  final bool? shrinkWrap;
 
   @override
   State<LoadMoreGridView> createState() => _LoadMoreGridViewState();
@@ -49,7 +51,7 @@ class _LoadMoreGridViewState extends State<LoadMoreGridView> {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      shrinkWrap: true,
+      shrinkWrap: widget.shrinkWrap ?? false,
       padding: widget.padding,
       controller: widget.scrollController,
       itemCount: widget.itemCount,
