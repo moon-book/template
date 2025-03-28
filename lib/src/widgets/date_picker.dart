@@ -48,7 +48,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
     controller = widget.controller ?? TextEditingController();
     initDate = widget.initDate;
     if (widget.enableInitValue) {
-      controller.text = (widget.initDate ?? DateTime.now()).toString().toDateTimeString(format: 'yyyy-MM-dd') ?? '';
+      controller.text = (widget.initDate ?? DateTime.now()).toString().toDateTimeString(format: 'dd-MM-yyyy') ?? '';
     }
     super.initState();
   }
@@ -59,7 +59,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
       setState(() {
         initDate = widget.initDate;
         if (widget.enableInitValue) {
-          controller.text = (widget.initDate ?? DateTime.now()).toString().toDateTimeString(format: 'yyyy-MM-dd') ?? '';
+          controller.text = (widget.initDate ?? DateTime.now()).toString().toDateTimeString(format: 'dd-MM-yyyy') ?? '';
         }
       });
     }
