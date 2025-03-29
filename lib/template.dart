@@ -39,6 +39,8 @@ import 'dart:html' as html;
 
 export 'src/widgets/side_bar_moon/model/feature_menu_model/feature_menu_model.dart';
 export 'src/widgets/side_bar_moon/model/tree_node_model.dart';
+export 'src/fork_package/syncfusion_flutter_calendar-27.2.5/lib/src/calendar/appointment_engine/appointment.dart';
+export 'src/widgets/timetable_calendar_view/timetable_calendar_view.dart';
 
 export 'src/features/auth/domain/entity/user_profile/user_profile_entity.dart';
 export 'src/features/auth/domain/usecase/auth_usecase.dart';

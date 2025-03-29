@@ -10,6 +10,7 @@ class SelectedTimeRangeWidget extends StatelessWidget {
     this.decoration,
     this.titleStyle,
     this.menuItem,
+    this.onlyPickRange = false,
   });
   final DateTime startTimeInit;
   final DateTime endTimeInit;
@@ -18,6 +19,7 @@ class SelectedTimeRangeWidget extends StatelessWidget {
   final Decoration? decoration;
   final TextStyle? titleStyle;
   final List<MenuItemButton>? menuItem;
+  final bool onlyPickRange;
   @override
   Widget build(BuildContext context) {
     return MenuAnchor(
@@ -25,6 +27,10 @@ class SelectedTimeRangeWidget extends StatelessWidget {
       builder: (context, controllerMenu, child) {
         return InkWell(
           onTap: () {
+            if (onlyPickRange) {
+              pickRanger(context);
+              return;
+            }
             if (controllerMenu.isOpen) {
               controllerMenu.close();
             } else {
@@ -150,19 +156,23 @@ class SelectedTimeRangeWidget extends StatelessWidget {
                 ),
               ),
               onPressed: () async {
-                var results = await showCalendarDatePicker2Dialog(
-                  context: context,
-                  config: CalendarDatePicker2WithActionButtonsConfig(calendarType: CalendarDatePicker2Type.range),
-                  dialogSize: const Size(325, 400),
-                  value: [startTimeInit, endTimeInit],
-                  borderRadius: BorderRadius.circular(15),
-                );
-                if (results != null) {
-                  onSelectDate.call(results.firstOrNull!, results.lastOrNull!);
-                }
+                pickRanger(context);
               },
             ),
           ],
     );
+  }
+
+  void pickRanger(BuildContext context) async {
+    var results = await showCalendarDatePicker2Dialog(
+      context: context,
+      config: CalendarDatePicker2WithActionButtonsConfig(calendarType: CalendarDatePicker2Type.range),
+      dialogSize: const Size(325, 400),
+      value: [startTimeInit, endTimeInit],
+      borderRadius: BorderRadius.circular(15),
+    );
+    if (results != null) {
+      onSelectDate.call(results.firstOrNull!, results.lastOrNull!);
+    }
   }
 }
