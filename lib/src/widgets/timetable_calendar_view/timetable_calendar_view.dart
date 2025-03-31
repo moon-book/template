@@ -25,8 +25,28 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
   late DateTime selectedStartDate;
   late DateTime selectedEndDate;
 
+  List<AppointmentMoon> appointments = [];
+
+  @override
+  void didUpdateWidget(covariant TimetableCalendartView oldWidget) {
+    // TODO: implement didUpdateWidget
+    if (oldWidget.appointments != widget.appointments) {
+      setState(() {
+        appointments = widget.appointments
+          ..sort(
+            (a, b) => a.startTime.compareTo(b.startTime),
+          );
+      });
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
   @override
   void initState() {
+    appointments = widget.appointments
+      ..sort(
+        (a, b) => a.startTime.compareTo(b.startTime),
+      );
     super.initState();
     selectedStartDate = _getStartOfWeek(DateTime.now()).subtract(const Duration(days: 1));
 
@@ -166,7 +186,7 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
                 return ApointmentWeekItemView(ap: appointment);
               },
               dataSource: MeetingDataSource(
-                widget.appointments,
+                appointments,
                 // getMeetings(),
               ),
             ),
@@ -288,7 +308,7 @@ class _ApointmentWeekItemViewState extends State<ApointmentWeekItemView> {
                   Gap(4),
                   Text(
                     widget.ap.sessionName,
-                    style: TextStyle(fontSize: 14),
+                    style: TextStyle(fontSize: 12),
                   ),
                 ],
               ),
@@ -304,7 +324,7 @@ class _ApointmentWeekItemViewState extends State<ApointmentWeekItemView> {
                   Gap(4),
                   Text(
                     widget.ap.teacher,
-                    style: TextStyle(fontSize: 14),
+                    style: TextStyle(fontSize: 12),
                   ),
                 ],
               ),
@@ -320,7 +340,7 @@ class _ApointmentWeekItemViewState extends State<ApointmentWeekItemView> {
                   Gap(4),
                   Text(
                     widget.ap.room,
-                    style: TextStyle(fontSize: 14),
+                    style: TextStyle(fontSize: 12),
                   ),
                 ],
               ),
@@ -335,7 +355,7 @@ class _ApointmentWeekItemViewState extends State<ApointmentWeekItemView> {
                   Gap(4),
                   Text(
                     '${DateFormat('HH:mm').format(widget.ap.startTime)} - ${DateFormat('HH:mm').format(widget.ap.endTime)}',
-                    style: TextStyle(fontSize: 14),
+                    style: TextStyle(fontSize: 12),
                   ),
                 ],
               ),
@@ -448,15 +468,26 @@ class _ApointmentMonthItemViewState extends State<ApointmentMonthItemView> {
             ),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                widget.ap.subject,
-                maxLines: 1,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  overflow: TextOverflow.ellipsis,
-                ),
+              child: Row(
+                children: [
+                  Text(
+                    '${DateFormat('HH:mm').format(widget.ap.startTime)}',
+                    style: TextStyle(fontSize: 10),
+                  ),
+                  Gap(4),
+                  Expanded(
+                    child: Text(
+                      widget.ap.subject,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
