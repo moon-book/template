@@ -40,7 +40,7 @@ class SelectedTimeRangeWidget extends StatelessWidget {
             }
           },
           child: Container(
-            padding: padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            padding: padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             decoration: decoration ??
                 BoxDecoration(
                   color: Colors.white,
