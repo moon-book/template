@@ -250,10 +250,10 @@ class _ApointmentWeekItemViewState extends State<ApointmentWeekItemView> {
       visible: _showTooltip,
       fit: StackFit.expand,
       anchor: const Aligned(
-        follower: Alignment.bottomCenter,
+        follower: Alignment.topCenter, // Tooltip nằm dưới item
         target: Alignment.bottomCenter,
-        portal: Alignment.bottomCenter,
-        // offset: Offset(12, 100),
+        // widthFactor: 1,
+        offset: Offset(0, 10),
       ),
       portalFollower: MouseRegion(
         onExit: (_) => setState(() => _showTooltip = false),
@@ -399,9 +399,10 @@ class _ApointmentMonthItemViewState extends State<ApointmentMonthItemView> {
         visible: _showTooltip,
         fit: StackFit.expand,
         anchor: const Aligned(
-          follower: Alignment.bottomLeft,
-          target: Alignment.bottomLeft,
-          offset: Offset(12, 12),
+          follower: Alignment.topCenter, // Tooltip nằm dưới item
+          target: Alignment.bottomCenter,
+          widthFactor: 1,
+          offset: Offset(0, 10),
         ),
         portalFollower: MouseRegion(
           onExit: (_) => setState(() => _showTooltip = false),
