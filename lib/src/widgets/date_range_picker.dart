@@ -11,7 +11,7 @@ class SelectedTimeRangeWidget extends StatelessWidget {
     this.titleStyle,
     this.menuItem,
     this.onlyPickRange = false,
-    this.showDatePickRange = false,
+    this.showDatePickRange = true,
   });
   final DateTime startTimeInit;
   final DateTime endTimeInit;
