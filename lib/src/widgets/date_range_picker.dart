@@ -11,6 +11,7 @@ class SelectedTimeRangeWidget extends StatelessWidget {
     this.titleStyle,
     this.menuItem,
     this.onlyPickRange = false,
+    this.showDatePickRange = true,
   });
   final DateTime startTimeInit;
   final DateTime endTimeInit;
@@ -20,6 +21,7 @@ class SelectedTimeRangeWidget extends StatelessWidget {
   final TextStyle? titleStyle;
   final List<MenuItemButton>? menuItem;
   final bool onlyPickRange;
+  final bool showDatePickRange;
   @override
   Widget build(BuildContext context) {
     return MenuAnchor(
@@ -38,7 +40,7 @@ class SelectedTimeRangeWidget extends StatelessWidget {
             }
           },
           child: Container(
-            padding: padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            padding: padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             decoration: decoration ??
                 BoxDecoration(
                   color: Colors.white,
@@ -52,11 +54,13 @@ class SelectedTimeRangeWidget extends StatelessWidget {
                   Icons.calendar_month,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                const Gap(10),
-                Text(
-                  "${DateFormat('dd/MM/yyyy').format(startTimeInit)} - ${DateFormat('dd/MM/yyyy').format(endTimeInit)}",
-                  style: titleStyle ?? const TextStyle(fontWeight: FontWeight.w600),
-                ),
+                if (showDatePickRange) ...[
+                  const Gap(10),
+                  Text(
+                    "${DateFormat('dd/MM/yyyy').format(startTimeInit)} - ${DateFormat('dd/MM/yyyy').format(endTimeInit)}",
+                    style: titleStyle ?? const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ],
               ],
             ),
           ),
