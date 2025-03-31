@@ -114,12 +114,10 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
               scheduleViewMonthHeaderBuilder: (context, details) {
                 return Text('data');
               },
-              monthViewSettings: MonthViewSettings(
-                showTrailingAndLeadingDates: false,
-                appointmentDisplayCount: 0,
-              ),
+              monthViewSettings: MonthViewSettings(showTrailingAndLeadingDates: false, appointmentDisplayCount: 0, monthCellStyle: MonthCellStyle()),
               monthCellBuilder: (context, details) {
                 return Container(
+                  decoration: BoxDecoration(border: Border.all(width: 0.1)),
                   child: Column(
                     children: [
                       Text(
@@ -253,7 +251,7 @@ class _ApointmentWeekItemViewState extends State<ApointmentWeekItemView> {
         follower: Alignment.topCenter, // Tooltip nằm dưới item
         target: Alignment.bottomCenter,
         // widthFactor: 1,
-        offset: Offset(0, 10),
+        offset: Offset(0, 0),
       ),
       portalFollower: MouseRegion(
         onExit: (_) => setState(() => _showTooltip = false),
