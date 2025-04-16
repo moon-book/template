@@ -43,7 +43,7 @@ class _UploadImageWidgetState extends State<UploadImageWidget> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                'Chọn ảnh từ thư mục hoặc điền link ảnh phía dưới',
+                'Chọn ảnh từ thư mục hoặc điền link ảnh',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
