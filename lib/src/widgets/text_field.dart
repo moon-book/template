@@ -126,6 +126,7 @@ class AppTextField extends StatefulWidget {
   final Widget? helpTitleWidget;
   final bool isRequired;
   final List<TextInputFormatter>? inputFormatters;
+
   const AppTextField({
     super.key,
     required this.controller,
@@ -170,11 +171,11 @@ class _PuTextField extends State<AppTextField> {
 
   OutlineInputBorder? get border {
     return OutlineInputBorder(
-      borderRadius: widget.borderRadius ?? BorderRadius.circular(8),
       borderSide: BorderSide(
-        color: widget.borderColor ?? themeColor?.ksPrimary ?? Colors.blueAccent,
-        width: 1,
+        color: Theme.of(context).colorScheme.secondary,
+        width: 0.7,
       ),
+      borderRadius: BorderRadius.circular(4),
     );
   }
 
@@ -234,15 +235,14 @@ class _PuTextField extends State<AppTextField> {
                   children: [
                     TextSpan(
                       text: widget.title,
-                      style: TextStyle(
-                        overflow: TextOverflow.ellipsis,
-                        color: Colors.black45,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: widget.isRequired == true ? FontWeight.bold : null,
+                          ),
                     ),
                     if (widget.isRequired)
-                      const TextSpan(
+                      TextSpan(
                         text: "*",
-                        style: TextStyle(color: Colors.red),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red),
                       ),
                   ],
                 ),
@@ -252,20 +252,16 @@ class _PuTextField extends State<AppTextField> {
                 Expanded(
                   child: Container(
                     alignment: Alignment.centerLeft,
-                    child: widget.helpTitleWidget!,
+                    child: widget.helpTitleWidget,
                   ),
                 ),
             ],
           ),
-        if (widget.title != null) const Gap(4),
+        if (widget.title != null) const Gap(10),
         Container(
           decoration: BoxDecoration(
             borderRadius: widget.borderRadius,
-            boxShadow: widget.enable
-                ? (widget.showShadow!
-                    ? [AppBoxShadow.ksSmallShadow(blurRadius: 5)]
-                    : null)
-                : null,
+            boxShadow: widget.enable ? (widget.showShadow! ? [AppBoxShadow.ksSmallShadow(blurRadius: 5)] : null) : null,
           ),
           child: TextFormField(
             inputFormatters: widget.inputFormatters,
@@ -295,15 +291,13 @@ class _PuTextField extends State<AppTextField> {
             },
           ),
         ),
-        if (validFiled
-            .isNotEmpty) // Only show the error message if it's not empty
+        if (validFiled.isNotEmpty) // Only show the error message if it's not empty
           Padding(
             padding: const EdgeInsets.only(top: 8.0, left: 8),
             child: Text(
               validFiled,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color:
-                        themeColor?.ksError, // Use red color for error messages
+                    color: themeColor?.ksError, // Use red color for error messages
                   ),
             ),
           ),
@@ -317,12 +311,8 @@ class _PuTextField extends State<AppTextField> {
       prefixIcon: widget.prefixIcon,
       suffixIcon: _buildSuffixIcon(),
       contentPadding: widget.contentPadding ??
-          const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 10,
-          ),
-      fillColor:
-          widget.backgroundColor ?? themeColor?.ksBackground3 ?? Colors.white,
+          const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      fillColor: widget.backgroundColor ?? themeColor?.ksBackground3 ?? Colors.white,
       prefixIconConstraints: BoxConstraints(
         minWidth: 32,
         maxWidth: 100,
@@ -338,23 +328,45 @@ class _PuTextField extends State<AppTextField> {
       hintText: widget.hintText,
       hintStyle: widget.hintStyle ??
           TextStyle(
-            color: widget.colorText ??
-                themeColor?.ksBody.withOpacity(0.45) ??
-                Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.color
-                    ?.withOpacity(0.45),
+            color: widget.colorText ?? themeColor?.ksBody.withOpacity(0.45) ?? Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.45),
             fontWeight: FontWeight.w400,
             fontSize: widget.fontSize ?? 14,
             height: 1.5,
           ),
       labelText: widget.labelText,
-      focusedBorder: border,
-      disabledBorder: border,
-      focusedErrorBorder: border,
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.secondary,
+          width: 0.7,
+        ),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.grey[300]!,
+          width: 0.7,
+        ),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.errorContainer, width: 0.7),
+        borderRadius: BorderRadius.circular(4.0),
+      ),
       border: border,
-      enabledBorder: border,
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.grey[300]!,
+          width: 0.7,
+        ),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.error,
+          width: 0.7,
+        ),
+        borderRadius: BorderRadius.circular(4.0),
+      ),
     );
     return inputDecoration;
   }
@@ -375,8 +387,7 @@ class _PuTextField extends State<AppTextField> {
                   child: Icon(
                     isHideText ? Icons.visibility_off : Icons.visibility,
                     size: 20,
-                    color: themeColor?.ksBody.withOpacity(0.26) ??
-                        Theme.of(context).primaryColor,
+                    color: themeColor?.ksBody.withOpacity(0.26) ?? Theme.of(context).primaryColor,
                   ),
                 )
               : Container(
