@@ -292,7 +292,7 @@ class _SearchDropdownState<T> extends State<SearchDropdown> {
                         constraints: const BoxConstraints(minWidth: 1, maxWidth: 500),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4),
-                          color: Theme.of(context).extension<ThemeColorExtension>()?.ksPrimary.withOpacity(0.2),
+                          color: Theme.of(context).primaryColor.withOpacity(0.2),
                         ),
                         margin: const EdgeInsets.only(right: 12, bottom: 12),
                         padding: const EdgeInsets.symmetric(
@@ -379,7 +379,7 @@ class _SearchDropdownState<T> extends State<SearchDropdown> {
                         constraints: const BoxConstraints(minWidth: 1, maxWidth: 500),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4),
-                          color: Theme.of(context).extension<ThemeColorExtension>()?.ksPrimary.withOpacity(0.2),
+                          color: Theme.of(context).primaryColor.withOpacity(0.2),
                         ),
                         margin: const EdgeInsets.only(right: 12, bottom: 12),
                         padding: const EdgeInsets.symmetric(
