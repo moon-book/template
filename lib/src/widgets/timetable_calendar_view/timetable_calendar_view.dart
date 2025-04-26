@@ -13,9 +13,13 @@ class TimetableCalendartView extends StatefulWidget {
     super.key,
     required this.appointments,
     this.onChangeDateFillter,
+    this.initialSelectedDate,
   });
+
   final List<AppointmentMoon> appointments;
-  final Function(DateTime? startDate, DateTime? endDate)? onChangeDateFillter;
+  final void Function(DateTime? startDate, DateTime? endDate)? onChangeDateFillter;
+  final DateTime? initialSelectedDate;
+
   @override
   State<TimetableCalendartView> createState() => _TimetableCalendartViewState();
 }
@@ -29,7 +33,6 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
 
   @override
   void didUpdateWidget(covariant TimetableCalendartView oldWidget) {
-    // TODO: implement didUpdateWidget
     if (oldWidget.appointments != widget.appointments) {
       setState(() {
         appointments = widget.appointments
@@ -69,27 +72,27 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
           // _renderDatetimePickerRanger(),
           Expanded(
             child: SfCalendar(
-              view: CalendarView.week, // Chế độ xem tuần
+              view: CalendarView.week,
+              // Chế độ xem tuần
               controller: controller,
               showDatePickerButton: true,
               showNavigationArrow: true,
               showWeekNumber: true,
               firstDayOfWeek: 1,
               onViewChanged: (details) {
-                List<DateTime> dates = details.visibleDates;
+                final dates = details.visibleDates;
                 widget.onChangeDateFillter?.call(dates.first, dates.last);
               },
               onSelectionChanged: (calendarSelectionDetails) {
                 if (controller.view == CalendarView.month) {
-                  controller.view = CalendarView.day;
                   controller
+                    ..view = CalendarView.day
                     ..selectedDate = calendarSelectionDetails.date
                     ..displayDate = calendarSelectionDetails.date;
                 }
               },
-
-              initialSelectedDate: selectedStartDate,
-              showCurrentTimeIndicator: true,
+              initialSelectedDate: widget.initialSelectedDate ?? DateTime.now(),
+              initialDisplayDate: widget.initialSelectedDate ?? DateTime.now(),
               showTodayButton: true,
               headerStyle: CalendarHeaderStyle(
                 backgroundColor: Theme.of(context).primaryColor,
@@ -97,8 +100,6 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
               ),
               timeSlotViewSettings: const TimeSlotViewSettings(
                 startHour: 6,
-                endHour: 24,
-                timeInterval: Duration(minutes: 60),
                 timeFormat: 'HH:mm',
               ),
               viewHeaderStyle: const ViewHeaderStyle(
@@ -106,14 +107,15 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
                 dayTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 dateTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
-              viewHeaderHeight: 60, // Tăng chiều cao phần header
+              viewHeaderHeight: 60,
+              // Tăng chiều cao phần header
               allowedViews: const [
                 CalendarView.day,
                 CalendarView.week,
                 CalendarView.month,
               ],
               resourceViewHeaderBuilder: (BuildContext context, ResourceViewHeaderDetails details) {
-                final DateTime date = DateTime.now();
+                final date = DateTime.now();
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -143,25 +145,26 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
                     children: [
                       Text(
                         details.date.day.toString(),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      SingleChildScrollView(
-                        child: Column(
-                          children: List.generate(
-                            details.appointments.toList().length > 3 ? 3 : details.appointments.toList().length,
-                            (index) {
-                              final appointment = details.appointments.toList()[index] as AppointmentMoon;
-                              return Container(
-                                child: ApointmentMonthItemView(
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: List.generate(
+                              details.appointments.toList().length > 3 ? 3 : details.appointments.toList().length,
+                              (index) {
+                                final appointment = details.appointments.toList()[index] as AppointmentMoon;
+                                return ApointmentMonthItemView(
                                   ap: appointment,
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
                       if (details.appointments.toList().length > 3) ...[
                         Container(
-                          margin: EdgeInsets.only(top: 4),
+                          margin: EdgeInsets.only(top: 4, bottom: 4),
                           width: 24,
                           height: 24,
                           padding: EdgeInsets.all(4),
@@ -216,36 +219,6 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
   }
 }
 
-// Dữ liệu lịch
-List<Appointment> getMeetings() {
-  return <Appointment>[
-    Appointment(
-      startTime: DateTime(2025, 3, 27, 10, 0),
-      endTime: DateTime(2025, 3, 27, 11, 0),
-      subject: 'Engineering Sync',
-      color: Colors.blue,
-    ),
-    Appointment(
-      startTime: DateTime(2025, 3, 27, 10, 0),
-      endTime: DateTime(2025, 3, 27, 14, 0),
-      subject: 'Engineering Sync111',
-      color: Colors.yellow,
-    ),
-    Appointment(
-      startTime: DateTime(2025, 3, 27, 12, 0),
-      endTime: DateTime(2025, 3, 27, 13, 0),
-      subject: 'Research Workshop',
-      color: Colors.red,
-    ),
-    Appointment(
-      startTime: DateTime(2025, 3, 27, 14, 0),
-      endTime: DateTime(2025, 3, 27, 15, 0),
-      subject: 'Recap: How we grow',
-      color: Colors.green,
-    ),
-  ];
-}
-
 // DataSource cho lịch
 class MeetingDataSource extends CalendarDataSource {
   MeetingDataSource(List<Appointment> source) {
@@ -255,7 +228,9 @@ class MeetingDataSource extends CalendarDataSource {
 
 class ApointmentWeekItemView extends StatefulWidget {
   const ApointmentWeekItemView({super.key, required this.ap});
+
   final AppointmentMoon ap;
+
   @override
   State<ApointmentWeekItemView> createState() => _ApointmentWeekItemViewState();
 }
@@ -272,7 +247,7 @@ class _ApointmentWeekItemViewState extends State<ApointmentWeekItemView> {
         follower: Alignment.topCenter, // Tooltip nằm dưới item
         target: Alignment.bottomCenter,
         // widthFactor: 1,
-        offset: Offset(0, 0),
+        offset: Offset(-36, 0),
       ),
       portalFollower: MouseRegion(
         onExit: (_) => setState(() => _showTooltip = false),
@@ -291,10 +266,16 @@ class _ApointmentWeekItemViewState extends State<ApointmentWeekItemView> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Gap(4),
-              Text(
-                widget.ap.subject,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
+              Container(
+                constraints: BoxConstraints(
+                  maxWidth: 300,
+                  minWidth: 100,
+                ),
+                child: Text(
+                  widget.ap.subject,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               Gap(2),
@@ -367,31 +348,37 @@ class _ApointmentWeekItemViewState extends State<ApointmentWeekItemView> {
       child: MouseRegion(
         onEnter: (_) => setState(() => _showTooltip = true),
         onExit: (_) => setState(() => _showTooltip = false),
-        child: Container(
-          margin: EdgeInsets.all(2),
-          padding: EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: Color.lerp(widget.ap.color, Colors.white, 0.8),
-            borderRadius: BorderRadius.circular(4),
-            border: Border(
-              left: BorderSide(
-                color: widget.ap.color, //Theme.of(context).primaryColor,
-                width: 3,
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onDoubleTap: widget.ap.onDoubleTap,
+          child: Container(
+            margin: EdgeInsets.all(2),
+            padding: EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: Color.lerp(widget.ap.color, Colors.white, 0.8),
+              borderRadius: BorderRadius.circular(4),
+              border: Border(
+                left: BorderSide(
+                  color: widget.ap.color, //Theme.of(context).primaryColor,
+                  width: 3,
+                ),
               ),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.ap.subject,
-                style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-              // Text(
-              //   widget.ap.notes ?? '',
-              //   style: TextStyle(color: Colors.black87, fontSize: 12),
-              // ),
-            ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.ap.subject,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 3,
+                  style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+                // Text(
+                //   widget.ap.notes ?? '',
+                //   style: TextStyle(color: Colors.black87, fontSize: 12),
+                // ),
+              ],
+            ),
           ),
         ),
       ),
@@ -401,7 +388,9 @@ class _ApointmentWeekItemViewState extends State<ApointmentWeekItemView> {
 
 class ApointmentMonthItemView extends StatefulWidget {
   const ApointmentMonthItemView({super.key, required this.ap});
-  final Appointment ap;
+
+  final AppointmentMoon ap;
+
   @override
   State<ApointmentMonthItemView> createState() => _ApointmentMonthItemViewState();
 }
@@ -454,41 +443,45 @@ class _ApointmentMonthItemViewState extends State<ApointmentMonthItemView> {
         child: MouseRegion(
           onEnter: (_) => setState(() => _showTooltip = true),
           onExit: (_) => setState(() => _showTooltip = false),
-          child: Container(
-            margin: EdgeInsets.all(2),
-            padding: EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: Color.lerp(widget.ap.color, Colors.white, 0.8),
-              borderRadius: BorderRadius.circular(4),
-              border: Border(
-                left: BorderSide(
-                  color: widget.ap.color, //Theme.of(context).primaryColor,
-                  width: 3,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onDoubleTap: widget.ap.onDoubleTap,
+            child: Container(
+              margin: EdgeInsets.all(2),
+              padding: EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Color.lerp(widget.ap.color, Colors.white, 0.8),
+                borderRadius: BorderRadius.circular(4),
+                border: Border(
+                  left: BorderSide(
+                    color: widget.ap.color, //Theme.of(context).primaryColor,
+                    width: 3,
+                  ),
                 ),
               ),
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Row(
-                children: [
-                  Text(
-                    '${DateFormat('HH:mm').format(widget.ap.startTime)}',
-                    style: TextStyle(fontSize: 10),
-                  ),
-                  Gap(4),
-                  Expanded(
-                    child: Text(
-                      widget.ap.subject,
-                      maxLines: 1,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        overflow: TextOverflow.ellipsis,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  children: [
+                    Text(
+                      '${DateFormat('HH:mm').format(widget.ap.startTime)}',
+                      style: TextStyle(fontSize: 10),
+                    ),
+                    Gap(4),
+                    Expanded(
+                      child: Text(
+                        widget.ap.subject,
+                        maxLines: 1,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -503,6 +496,8 @@ class AppointmentMoon extends Appointment {
   String sessionName;
   String teacher;
   String room;
+  VoidCallback? onDoubleTap;
+
   AppointmentMoon({
     required super.startTime,
     required super.endTime,
@@ -513,5 +508,6 @@ class AppointmentMoon extends Appointment {
     required this.sessionName,
     required this.teacher,
     required this.room,
+    this.onDoubleTap,
   });
 }
