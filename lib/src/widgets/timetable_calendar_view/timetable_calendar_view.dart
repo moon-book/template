@@ -74,6 +74,7 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
               showDatePickerButton: true,
               showNavigationArrow: true,
               showWeekNumber: true,
+              firstDayOfWeek: 1,
               onViewChanged: (details) {
                 List<DateTime> dates = details.visibleDates;
                 widget.onChangeDateFillter?.call(dates.first, dates.last);
