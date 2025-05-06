@@ -370,13 +370,14 @@ class _ApointmentWeekItemViewState extends State<ApointmentWeekItemView> {
                 Text(
                   widget.ap.subject,
                   overflow: TextOverflow.ellipsis,
-                  maxLines: 3,
-                  style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
+                  maxLines: 2,
+                  style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
                 ),
-                // Text(
-                //   widget.ap.notes ?? '',
-                //   style: TextStyle(color: Colors.black87, fontSize: 12),
-                // ),
+                Text(
+                  widget.ap.room ?? '',
+                  maxLines: 1,
+                  style: TextStyle(color: Colors.black87, fontSize: 12, overflow: TextOverflow.ellipsis),
+                ),
               ],
             ),
           ),
