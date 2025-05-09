@@ -8551,7 +8551,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                       widget.localizations.weeknumberLabel,
                       textAlign: TextAlign.center,
                       textScaler: TextScaler.linear(widget.textScaleFactor),
-                      style: weekNumberTextStyle,
+                      style: weekNumberTextStyle.copyWith(color: Colors.white),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                     )),
@@ -8559,7 +8559,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                         child: Text(
                       ' $weekNumberString',
                       textAlign: TextAlign.center,
-                      style: weekNumberTextStyle,
+                      style: weekNumberTextStyle.copyWith(color: Colors.white),
                       textScaler: TextScaler.linear(widget.textScaleFactor),
                       maxLines: 1,
                     ))
@@ -8901,7 +8901,10 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                             alignment: Alignment.center,
                             child: Text(text,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(color: isHighlighted ? highlightColor : headerTextColor, fontSize: defaultCalendarViewTextSize),
+                                style: TextStyle(
+                                  color: isHighlighted ? Colors.white : headerTextColor,
+                                  fontSize: defaultCalendarViewTextSize,
+                                ),
                                 maxLines: 1,
                                 textDirection: TextDirection.ltr),
                           )))),
