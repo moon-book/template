@@ -73,14 +73,11 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
           Expanded(
             child: SfCalendar(
               view: CalendarView.week,
-<<<<<<< Updated upstream
-=======
               // todayHighlightColor: Theme.of(context).primaryColor,
               // weekNumberStyle: WeekNumberStyle(
               //   backgroundColor: Theme.of(context).primaryColor,
               //   textStyle: TextStyle(fontSize: 16, color: controller.view == CalendarView.week ? Colors.black : Colors.white),
               // ),
->>>>>>> Stashed changes
               // Chế độ xem tuần
               controller: controller,
               showDatePickerButton: true,
