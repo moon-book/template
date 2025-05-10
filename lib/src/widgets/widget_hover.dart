@@ -11,10 +11,12 @@ class WidgetHoverShowInfo<T> extends StatefulWidget {
     required this.child,
     required this.data,
     required this.buildInfo,
+    this.aligned,
   });
   T data;
   Widget child;
   final Widget Function(T data) buildInfo;
+  final Aligned? aligned;
   @override
   State<WidgetHoverShowInfo> createState() => _WidgetHoverShowInfoState<T>();
 }
@@ -29,12 +31,13 @@ class _WidgetHoverShowInfoState<T> extends State<WidgetHoverShowInfo<T>> {
         visible: _showTooltip,
 
         // fit: StackFit.expand,
-        anchor: const Aligned(
-          follower: Alignment.topCenter, // Tooltip nằm dưới item
-          target: Alignment.bottomCenter,
-          // widthFactor: 1,
-          // offset: Offset(-36, 0),
-        ),
+        anchor: widget.aligned ??
+            Aligned(
+              follower: Alignment.topCenter, // Tooltip nằm dưới item
+              target: Alignment.bottomCenter,
+              // widthFactor: 1,
+              // offset: widget.aligned ?? Offset.zero, // Offset(-36, 0),
+            ),
         portalFollower: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
