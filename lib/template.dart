@@ -2,7 +2,6 @@
 library template;
 
 import 'dart:async';
-
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:animated_tree_view/tree_view/tree_node.dart';
 import 'package:animated_tree_view/tree_view/tree_view.dart';
@@ -34,22 +33,20 @@ import 'package:template/src/widgets/side_bar_moon/model/feature_menu_model/feat
 import 'package:template/src/widgets/side_bar_moon/model/tree_node_model.dart';
 import 'package:template/src/widgets/side_bar_moon/service/side_bar_service.dart';
 import 'package:video_player/video_player.dart';
-import 'dart:html' as html;
-
+import 'package:universal_html/html.dart' as html;
 export 'src/widgets/side_bar_moon/model/feature_menu_model/feature_menu_model.dart';
 export 'src/widgets/side_bar_moon/model/tree_node_model.dart';
 export 'src/fork_package/syncfusion_flutter_calendar-27.2.5/lib/src/calendar/appointment_engine/appointment.dart';
 export 'src/widgets/timetable_calendar_view/timetable_calendar_view.dart';
 export 'src/widgets/widget_hover.dart';
-
 export 'src/features/auth/domain/entity/user_profile/user_profile_entity.dart';
 export 'src/features/auth/domain/usecase/auth_usecase.dart';
 export 'src/features/auth/data/model/login_request/login_request_model.dart';
 export 'src/features/auth/domain/entity/login_response/login_response.dart';
 export 'src/template.dart';
 // ignore: avoid_web_libraries_in_flutter
-import 'dart:js' as js;
-import 'dart:ui_web' as ui;
+
+// import 'dart:ui_web' as ui;
 import 'package:random_string/random_string.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:template/src/utils/debouncer.dart';
@@ -74,7 +71,7 @@ part 'src/widgets/upload_image_widget.dart';
 part 'src/widgets/tree_fodel.dart';
 part 'src/widgets/text_field_url_or_upload_image.dart';
 part 'src/widgets/image_preview.dart';
-part 'src/widgets/video_widget.dart';
+// part 'src/widgets/video_widget.dart';
 part 'src/widgets/line_chart.dart';
 part 'src/utils/extention.dart';
 part 'src/utils/ultils.dart';
