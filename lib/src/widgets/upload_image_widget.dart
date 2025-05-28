@@ -9,6 +9,19 @@ class UploadImageWidget extends StatefulWidget {
   final Function(Uint8List byte, String? fileName) getImageByte;
   @override
   State<UploadImageWidget> createState() => _UploadImageWidgetState();
+
+  static void chooseImage(Function(Uint8List byte, String? fileName) getImageByte) async {
+    final picker = ImagePicker();
+    // Chọn ảnh từ thư viện
+    final image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      // Đọc dữ liệu byte từ ảnh
+      final imageBytes = await image.readAsBytes();
+      String? fileName = image.name.contains('.gif') ? 'filname.gif' : null;
+      getImageByte.call(imageBytes, fileName);
+    }
+  }
 }
 
 class _UploadImageWidgetState extends State<UploadImageWidget> {
