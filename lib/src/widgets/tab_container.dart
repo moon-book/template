@@ -1,68 +1,71 @@
 part of template;
 
 class TabContainerWidget extends StatefulWidget {
-  const TabContainerWidget({
-    super.key,
-    required this.children,
-    required this.title,
-    this.sizeTabLength = 100,
-  });
   final List<Widget> children;
   final List<String> title;
-  final double sizeTabLength;
+  final double? sizeTabLength;
+
+  const TabContainerWidget({
+    Key? key,
+    required this.children,
+    required this.title,
+    this.sizeTabLength,
+  }) : super(key: key);
 
   @override
-  State<TabContainerWidget> createState() => _TabContainerState();
+  _TabContainerWidgetState createState() => _TabContainerWidgetState();
 }
 
-class _TabContainerState extends State<TabContainerWidget> with TickerProviderStateMixin {
-  late TabController tabController;
+class _TabContainerWidgetState extends State<TabContainerWidget> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   @override
   void initState() {
-    tabController = TabController(
-      length: widget.children.length,
-      vsync: this,
-    );
-    tabController.index = 0;
     super.initState();
+    _tabController = TabController(length: widget.title.length, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return TabContainer(
-      controller: tabController,
-      // tabsStart: 0.2,
-      // tabsEnd: 0.9,
-      tabMaxLength: widget.sizeTabLength,
-      // tabExtent: 80,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // TabBar
+        Container(
+          color: Colors.white,
+          child: TabBar(
+            tabAlignment: TabAlignment.start,
+            controller: _tabController,
+            padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+            labelPadding: EdgeInsets.symmetric(horizontal: 0), // Chỉ padding riêng cho tab
 
-      borderRadius: BorderRadius.circular(10),
-      tabBorderRadius: BorderRadius.circular(10),
-      selectedTextStyle: const TextStyle(
-        color: Colors.white,
-        fontSize: 15,
-      ),
-      unselectedTextStyle: const TextStyle(
-        color: Colors.black,
-        fontSize: 13,
-      ),
-      colors: [
-        Theme.of(context).primaryColor,
-        Theme.of(context).primaryColor
-        // Colors.blue,
+            isScrollable: true,
+            indicator: BoxDecoration(
+              color: Colors.blue, // Màu nền tab active
+              borderRadius: BorderRadius.circular(8),
+            ),
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.black,
+            labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            unselectedLabelStyle: TextStyle(fontSize: 16),
+            tabs: widget.title.map((e) => Container(padding: EdgeInsets.symmetric(horizontal: 12), child: Tab(text: e))).toList(),
+          ),
+        ),
+
+        // TabBarView
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: widget.children,
+          ),
+        ),
       ],
-      tabs: List.generate(
-        widget.title.length,
-        (index) {
-          return Text(widget.title[index]);
-        },
-      ),
-      children: List.generate(
-        widget.children.length,
-        (index) {
-          return widget.children[index];
-        },
-      ),
     );
   }
 }

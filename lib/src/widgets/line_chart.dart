@@ -17,6 +17,7 @@ class ChartMoon<T, U> extends StatefulWidget {
     this.tooltipBuilder,
     this.chartType,
     this.dataLabelMapper,
+    this.directionPieChart,
   });
   Map<T, List<ChartData<U>>> data;
   String Function(dynamic t) getLineName;
@@ -24,7 +25,7 @@ class ChartMoon<T, U> extends StatefulWidget {
   bool isSpline;
   String Function(int value)? getNameUnitOY;
   String Function(int value)? dataLabelMapper;
-
+  final Axis? directionPieChart;
   ChartType? chartType;
   Widget Function(
     dynamic data,
@@ -277,59 +278,64 @@ class _ChartMoonState<T, U> extends State<ChartMoon> {
   }
 
   Widget _buildPieChart() {
-    return Row(
-      children: [
-        Expanded(
-          child: SfCircularChart(
-            tooltipBehavior: TooltipBehavior(
-              enable: true,
-              canShowMarker: false,
-              color: const Color.fromARGB(255, 239, 246, 255),
-              animationDuration: 150,
-              textStyle: const TextStyle(
-                color: Colors.black,
-              ),
-            ), // Hiển thị giá trị khi người dùng nhấn vào điểm
-            series: _getPieSeries(),
-          ),
-        ),
-        const Gap(12),
-        Container(
-          width: 400,
-          child: Wrap(
-            children: List.generate(
-              widget.data.values.first.length,
-              (index) {
-                return Container(
-                  width: 200, // Đặt chiều rộng tối đa
-                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        margin: const EdgeInsets.only(right: 8),
-                        decoration: BoxDecoration(
-                          color: widget.data.values.first[index].color, // Màu của mục chú thích khớp với phần biểu đồ
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      Flexible(
-                        child: Text(
-                          widget.data.values.first[index].x.toString(),
-                          style: const TextStyle(fontSize: 12),
-                          overflow: TextOverflow.ellipsis, // Thêm dấu "..." nếu quá dài
-                          maxLines: 2, // Giới hạn số dòng
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+    return SingleChildScrollView(
+      scrollDirection: widget.directionPieChart ?? Axis.horizontal,
+      child: Flex(
+        direction: widget.directionPieChart ?? Axis.horizontal,
+        children: [
+          Container(
+            constraints: BoxConstraints(maxWidth: 400, maxHeight: 350),
+            child: SfCircularChart(
+              tooltipBehavior: TooltipBehavior(
+                enable: true,
+                canShowMarker: false,
+                color: const Color.fromARGB(255, 239, 246, 255),
+                animationDuration: 150,
+                textStyle: const TextStyle(
+                  color: Colors.black,
+                ),
+              ), // Hiển thị giá trị khi người dùng nhấn vào điểm
+              series: _getPieSeries(),
             ),
           ),
-        )
-      ],
+          const Gap(12),
+          Container(
+            width: 400,
+            child: Wrap(
+              children: List.generate(
+                widget.data.values.first.length,
+                (index) {
+                  return Container(
+                    width: 400, // Đặt chiều rộng tối đa
+                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 12,
+                          height: 12,
+                          margin: const EdgeInsets.only(right: 8),
+                          decoration: BoxDecoration(
+                            color: widget.data.values.first[index].color, // Màu của mục chú thích khớp với phần biểu đồ
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        Flexible(
+                          child: Text(
+                            widget.data.values.first[index].x.toString(),
+                            style: const TextStyle(fontSize: 12),
+                            overflow: TextOverflow.ellipsis, // Thêm dấu "..." nếu quá dài
+                            maxLines: 2, // Giới hạn số dòng
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

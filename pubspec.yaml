@@ -30,14 +30,17 @@ dependencies:
   syncfusion_flutter_charts: ^27.1.51
   random_string: ^2.3.1
   visibility_detector: ^0.4.0+2
-  animated_tree_view: ^2.3.0
+  # animated_tree_view: ^2.3.0
   equatable: ^2.0.5
   dio: ^5.4.0
   tab_container: ^3.5.3
   photo_view: ^0.15.0
   get_it: ^7.6.4
   calendar_date_picker2: ^1.1.7
-
+  easy_sidemenu:
+    git:
+      url: https://github.com/giangdk/easy_sidemenu.git
+      ref: master
 dev_dependencies:
   flutter_test:
     sdk: flutter

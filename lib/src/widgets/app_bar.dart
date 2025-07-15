@@ -8,12 +8,14 @@ class AppBarCustom extends StatefulWidget {
     this.showBoxSearchCenter = false,
     this.onChangeBoxSearchCenter,
     this.currentPageNamed,
+    this.mobileAppBar,
   });
   Widget? centerWidget;
   List<Widget> actions;
   bool showBoxSearchCenter;
   Function? onChangeBoxSearchCenter;
   Widget? currentPageNamed;
+  Widget? mobileAppBar;
   @override
   State<AppBarCustom> createState() => _AppBarCustomState();
 }
@@ -38,46 +40,47 @@ class _AppBarCustomState extends State<AppBarCustom> {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            // child: Container(),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Row(
-                children: [
-                  // if (context.canPop())
-                  //   IconButton(
-                  //     onPressed: () {
-                  //       if (context.canPop()) context.pop();
-                  //     },
-                  //     icon: const Icon(
-                  //       Icons.navigate_before_outlined,
-                  //       color: AppColors.primaryColor,
-                  //     ),
-                  //   ),
-                  widget.currentPageNamed ??
-                      Text(
-                        'Page name',
-                        style: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                ],
+      child: widget.mobileAppBar ??
+          Row(
+            children: [
+              Expanded(
+                // child: Container(),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    children: [
+                      // if (context.canPop())
+                      //   IconButton(
+                      //     onPressed: () {
+                      //       if (context.canPop()) context.pop();
+                      //     },
+                      //     icon: const Icon(
+                      //       Icons.navigate_before_outlined,
+                      //       color: AppColors.primaryColor,
+                      //     ),
+                      //   ),
+                      widget.currentPageNamed ??
+                          Text(
+                            'Page name',
+                            style: textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+              Expanded(
+                flex: 4,
+                child: widget.centerWidget ?? (widget.showBoxSearchCenter ? _renderBoxSearch() : Container()),
+              ),
+              Container(
+                padding: const EdgeInsets.only(right: 12),
+                alignment: Alignment.centerRight,
+                child: widget.actions.isNotEmpty ? widget.actions.first : Container(),
+              ),
+            ],
           ),
-          Expanded(
-            flex: 4,
-            child: widget.centerWidget ?? (widget.showBoxSearchCenter ? _renderBoxSearch() : Container()),
-          ),
-          Container(
-            padding: const EdgeInsets.only(right: 12),
-            alignment: Alignment.centerRight,
-            child: widget.actions.isNotEmpty ? widget.actions.first : Container(),
-          ),
-        ],
-      ),
     );
   }
 

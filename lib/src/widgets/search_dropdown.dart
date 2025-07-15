@@ -91,7 +91,7 @@ class _SearchDropdownState<T> extends State<SearchDropdown> {
             // ..value = (widget.initialItems ?? <T>[]) as List<T>)
             as MultiSelectController<T>?;
       } else {
-        multiSelectController = MultiSelectController((widget.initialItems ?? []) as List<T>);
+        multiSelectController = MultiSelectController((widget.initialItems ?? <T>[]) as List<T>);
       }
     }
 

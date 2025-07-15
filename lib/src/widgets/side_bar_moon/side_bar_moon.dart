@@ -10,7 +10,7 @@ class SidebarMoon extends StatefulWidget {
     required this.projectName,
     this.getIconWithName,
     this.backgroundColor,
-    this.onTreeReady,
+    // this.onTreeReady,
     this.initRoute,
     this.avatar,
     this.fullnameUser,
@@ -19,6 +19,8 @@ class SidebarMoon extends StatefulWidget {
     this.onTapLogout,
     this.expandAll,
     this.isExpandedSideBar = true,
+    this.width,
+    this.showShadow = true,
   }) : super(key: key);
   Dio dio;
   int tagId;
@@ -28,15 +30,17 @@ class SidebarMoon extends StatefulWidget {
   Color? backgroundColor;
   bool? expandAll;
   bool isExpandedSideBar;
+  double? width;
+  bool showShadow;
 
   ///hàm này trả về icon theo iconurl từ be trả về nhé ae
   Widget Function(String iconUrl)? getIconWithName;
-  void Function(TreeNode<TreeNodeExt> item, BuildContext context)? onChangeFeature;
-  void Function(TreeViewController<TreeNodeExt, TreeNode<TreeNodeExt>>)? onTreeReady;
+  void Function(TreeNodeExt item, BuildContext context)? onChangeFeature;
+  // void Function(TreeViewController<TreeNodeExt, TreeNode<TreeNodeExt>>)? onTreeReady;
   String? initRoute;
   Widget Function(
     BuildContext context,
-    TreeNode<TreeNodeExt> item,
+    TreeNodeExt item,
     bool isSelected,
   )? itemBuilder;
 
@@ -45,35 +49,60 @@ class SidebarMoon extends StatefulWidget {
   State<SidebarMoon> createState() => _SidebarMoonState();
 }
 
-class _SidebarMoonState extends State<SidebarMoon> {
-  late SideBarService _service;
-  TreeViewController<TreeNodeExt, TreeNode<TreeNodeExt>>? treeViewController;
-  //danh mục menu nhé ae
-  TreeNode<TreeNodeExt> features = TreeNode.root();
-  TreeNode<TreeNodeExt>? featureSelected;
-  bool isExpandedSideBar = true;
+class _SidebarMoonState extends State<SidebarMoon> with AutomaticKeepAliveClientMixin {
+  SideMenuController sideMenu = SideMenuController();
 
+  late SideBarService _service;
+  //danh mục menu nhé ae
+  List<TreeNodeExt> features = [];
+  TreeNodeExt? featureSelected;
+  bool isExpandedSideBar = true;
+  List<bool> initExpandedItem = [true];
 //call api lay ra danh sach feature
   Future<BaseModel<List<FeatureMenuModel>>> getFeature() async {
     final data = await _service.getFeature(
       tagId: widget.tagId,
       projectName: widget.projectName,
     );
+    for (var i = 0; i < data.data!.length; i++) {
+      if (data.data![i].children!.isNotEmpty) {
+        initExpandedItem.add(true);
+      }
+    }
     final feat = buildTreeNodes(
       data.data ?? [],
     );
+    if (widget.initRoute != null) {
+      for (var i = 0; i < feat.length; i++) {
+        if (widget.initRoute!.split('/').length <= 2) {
+          //khogn co con
+          if (widget.initRoute == feat[i].pathRouter) {
+            sideMenu.changePage(i);
+          }
+        } else {
+          //co con
+          for (var j = 0; j < feat[i].children.length; j++) {
+            if (widget.initRoute!.split('/').last == feat[i].children[j].pathRouter) {
+              sideMenu.changePage(i + j);
+            }
+          }
+        }
+      }
+    }
     setState(() {
       features.addAll(feat);
     });
 
+    // sideMenu.changePage(3);
     return data;
   }
 
-  List<TreeNode<TreeNodeExt>> buildTreeNodes(
+  List<TreeNodeExt> buildTreeNodes(
     List<FeatureMenuModel> menuItems, {
     String? parentPathRouter,
-    TreeNode<TreeNodeExt>? parent,
+    TreeNodeExt? parent,
   }) {
+    int index = 0;
     var data = menuItems.map(
       (item) {
         Widget icon = Container();
@@ -82,40 +111,37 @@ class _SidebarMoonState extends State<SidebarMoon> {
         } else {
           icon = widget.getIconWithName?.call(item.iconUrl ?? '') ?? Container();
         }
-        final nodeData = TreeNodeExt(
-          key: '${item.featureId}',
+        final treeNode = TreeNodeExt(
+          // key: '${item.featureId}',
           name: item.featureName ?? '',
           pathRouter: item.route ?? '',
           parentPathRouter: parentPathRouter,
           parent: parent,
           icon: icon, // Icon(Icons.show_chart_sharp),
         );
-
-        final treeNode = TreeNode<TreeNodeExt>(
-          key: item.featureId?.toString() ?? 'unknown',
-          data: nodeData,
-        );
         if (widget.initRoute != null) {
           if (widget.initRoute!.contains(item.route ?? '')) {
             featureSelected = treeNode;
+            // sideMenu.changePage(index);
           }
-          var subPaths = widget.initRoute!.split('/');
+          final subPaths = widget.initRoute!.split('/');
           if (subPaths.length > 2) {
-            if ('${nodeData.parentPathRouter}/${nodeData.pathRouter}' == widget.initRoute!) {
+            if ('${treeNode.parentPathRouter}/${treeNode.pathRouter}' == widget.initRoute!) {
+              print("xzxzxz $index");
+              initExpandedItem[index] = true;
               featureSelected = treeNode;
             }
           }
         }
 
         if (item.children != null && item.children!.isNotEmpty) {
-          treeNode.addAll(
-            buildTreeNodes(
-              item.children!.cast<FeatureMenuModel>(),
-              parentPathRouter: item.route,
-              parent: treeNode,
-            ),
+          treeNode.children = buildTreeNodes(
+            item.children!.cast<FeatureMenuModel>(),
+            parentPathRouter: item.route,
+            parent: treeNode,
           );
         }
+        index++;
         return treeNode;
       },
     ).toList();
@@ -127,9 +153,14 @@ class _SidebarMoonState extends State<SidebarMoon> {
   void initState() {
     isExpandedSideBar = widget.isExpandedSideBar;
     _service = SideBarService(widget.dio);
-
     getFeature();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -144,6 +175,7 @@ class _SidebarMoonState extends State<SidebarMoon> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return sideBar();
   }
 
@@ -184,22 +216,6 @@ class _SidebarMoonState extends State<SidebarMoon> {
     );
   }
 
-  void initTreeViewContrl(
-    TreeViewController<TreeNodeExt, TreeNode<TreeNodeExt>> controller,
-    BuildContext context,
-  ) {
-    treeViewController = controller;
-    if (widget.expandAll == true) {
-      treeViewController?.expandAllChildren(features);
-    }
-    if (featureSelected != null) {
-      if (featureSelected!.parent != null) treeViewController?.expandAllChildren(featureSelected!.data!.parent!);
-      // else {
-      //   treeViewController?.expandAllChildren(featureSelected!);
-      // }
-    }
-  }
-
   Widget sideBar() {
     return AnimatedSwitcher(
       key: UniqueKey(),
@@ -208,7 +224,7 @@ class _SidebarMoonState extends State<SidebarMoon> {
         return ScaleTransition(scale: animation, child: child);
       },
       child: Container(
-        width: isExpandedSideBar ? 250 : 40,
+        width: widget.width ?? (isExpandedSideBar ? 250 : 40),
         decoration: BoxDecoration(
           color: widget.backgroundColor ?? Colors.white,
           border: isExpandedSideBar
@@ -218,7 +234,7 @@ class _SidebarMoonState extends State<SidebarMoon> {
                   ),
                 )
               : null,
-          boxShadow: isExpandedSideBar
+          boxShadow: isExpandedSideBar && widget.showShadow
               ? [
                   AppBoxShadow.ksSmallShadow(
                     color: const Color.fromARGB(31, 144, 144, 144),
@@ -228,114 +244,80 @@ class _SidebarMoonState extends State<SidebarMoon> {
         ),
         child: Column(
           children: [
-            if (isExpandedSideBar) Container(padding: const EdgeInsets.all(16), child: _renderUser()),
-            if (features.children.isNotEmpty && isExpandedSideBar)
+            if (isExpandedSideBar)
+              Container(
+                padding: const EdgeInsets.all(16),
+                child: _renderUser(),
+              ),
+            if (features.isNotEmpty && isExpandedSideBar)
               Expanded(
-                child: TreeView.simple<TreeNodeExt>(
-                  tree: features,
-                  showRootNode: false,
-                  indentation: const Indentation(width: 0),
-                  expansionIndicatorBuilder: (context, node) {
-                    return ChevronIndicator.rightDown(
-                      alignment: Alignment.centerLeft,
-                      tree: node,
-                      color: Theme.of(context).primaryColor,
-                      icon: Icons.arrow_right_rounded,
-                    );
-                  },
-                  onTreeReady: (controller) {
-                    //todo check router
+                child: Theme(
+                  data: ThemeData().copyWith(
+                    dividerColor: Colors.transparent,
 
-                    initTreeViewContrl(controller, context);
-                    widget.onTreeReady?.call(controller);
-                  },
-                  onItemTap: (item) {
-                    setState(() {
-                      featureSelected = item;
-                    });
-                    widget.onChangeFeature?.call(item, context);
-                  },
-                  builder: (context, node) {
-                    final isSelected = node.data == featureSelected?.data;
-
-                    // final isExpanded = node.isExpanded;
-                    return MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: Container(
-                        // height: 42,
-                        width: 250,
-                        // color: node.level >= 2 || isExpanded
-                        //     ? Color.fromARGB(255, 248, 250, 255)
-                        //     : null,
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: node.level >= 2 ? const EdgeInsets.only(left: 27) : EdgeInsets.zero,
-                          child: widget.itemBuilder != null
-                              ? widget.itemBuilder!.call(
-                                  context,
-                                  node,
-                                  isSelected,
-                                )
-                              : Container(
-                                  width: 250,
-                                  height: 45, // The size dimension of the active button
-                                  alignment: Alignment.centerLeft,
-                                  decoration: BoxDecoration(
-                                    gradient: isSelected
-                                        ? node.isLeaf
-                                            ? const LinearGradient(
-                                                colors: [
-                                                  Color.fromARGB(255, 240, 244, 255),
-                                                  Color.fromARGB(255, 207, 221, 255),
-                                                ],
-                                              )
-                                            : null
-                                        : null,
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(
-                                        50,
-                                      ),
-                                      bottomLeft: Radius.circular(
-                                        50,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 25,
-                                    ),
-                                    child: node.level >= 2
-                                        ? Text(
-                                            node.data?.name ?? '',
-                                            style: TextStyle(
-                                              color: isSelected ? Theme.of(context).primaryColor : null,
-                                              fontWeight: isSelected ? FontWeight.w600 : null,
-                                              fontSize: 13,
-                                            ),
-                                          )
-                                        : Row(
-                                            children: [
-                                              if (node.data?.icon != null) node.data!.icon! else Container(),
-                                              if (node.data?.icon != null)
-                                                const SizedBox(
-                                                  width: 12,
-                                                ),
-                                              Text(
-                                                node.data?.name ?? '',
-                                                style: TextStyle(
-                                                  color: isSelected ? Theme.of(context).primaryColor : null,
-                                                  fontWeight: isSelected ? FontWeight.w600 : null,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                  ),
-                                ),
-                        ),
+                    // canvasColor: Colors.blue,
+                    // drawerTheme: DrawerThemeData(
+                    //   backgroundColor: Colors.red,
+                    // ),
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    child: SideMenu(
+                      controller: sideMenu,
+                      items: List.generate(
+                        features.length,
+                        (index) {
+                          if (features[index].children.isEmpty) {
+                            //cha
+                            return SideMenuItem(
+                              title: features[index].name,
+                              onTap: (index, _) {
+                                sideMenu.changePage(index);
+                                widget.onChangeFeature?.call(features[index], context);
+                              },
+                              iconWidget: features[index].icon,
+                            );
+                          } else {
+                            //cha chua con
+                            return SideMenuExpansionItem(
+                              title: features[index].name,
+                              iconWidget: features[index].icon,
+                              // onTap: (index, c, isExpanded) {},
+                              children: List.generate(
+                                features[index].children.length,
+                                (i) {
+                                  return SideMenuItem(
+                                    title: features[index].children[i].name,
+                                    onTap: (x, _) {
+                                      sideMenu.changePage(x);
+                                      widget.onChangeFeature?.call(features[index].children[i], context);
+                                    },
+                                    iconWidget: features[index].children[i].icon,
+                                  );
+                                },
+                              ),
+                            );
+                          }
+                        },
                       ),
-                    );
-                  },
+                      style: SideMenuStyle(
+                        displayMode: SideMenuDisplayMode.open,
+                        selectedColor: Theme.of(context).primaryColor.withOpacity(0.12),
+                        backgroundColor: Colors.transparent,
+                        selectedTitleTextStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        unselectedTitleTextStyle: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14, color: Colors.black, // thêm màu cho mobile fallback
+                        ),
+                        arrowOpen: Theme.of(context).primaryColor,
+                      ),
+                      expansionStateListInit: initExpandedItem,
+                    ),
+                  ),
                 ),
               ),
             Row(
@@ -390,4 +372,8 @@ class _SidebarMoonState extends State<SidebarMoon> {
       ),
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
