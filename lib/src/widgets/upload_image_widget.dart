@@ -9,6 +9,27 @@ class UploadImageWidget extends StatefulWidget {
   final Function(Uint8List byte, String? fileName) getImageByte;
   @override
   State<UploadImageWidget> createState() => _UploadImageWidgetState();
+
+  static Future<void> chooseImage(Dio? dio, Function(String? imagePath) getImageByte) async {
+    final picker = ImagePicker();
+    // Chọn ảnh từ thư viện
+    final image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      // Đọc dữ liệu byte từ ảnh
+      final imageBytes = await image.readAsBytes();
+      String? fileName = image.name.contains('.gif') ? 'filname.gif' : null;
+      var response = await AdvertUsecase(FeatRepoImpl(FeatService(
+        dio ?? Dio(),
+        baseUrl: 'https://vidfile.moon.vn',
+      ))).uploadImage(
+        images: imageBytes,
+        filename: fileName,
+      );
+
+      getImageByte.call(response.data?.filePath ?? '');
+    }
+  }
 }
 
 class _UploadImageWidgetState extends State<UploadImageWidget> {
