@@ -56,7 +56,7 @@ class WeeklyScheduleTable extends StatelessWidget {
                       padding: EdgeInsets.symmetric(vertical: 16),
                       child: Center(
                         child: Text(
-                          'Phòng',
+                          'PHÒNG HỌC',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
