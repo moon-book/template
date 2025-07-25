@@ -26,10 +26,9 @@ class WeeklyScheduleTable extends StatelessWidget {
     final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     final scheduleMap = <String, Map<String, List<AppointmentMoon>>>{};
 
-    // Gom nhóm theo room → day → list<AppointmentMoon>
-    for (var appt in appointments) {
+    for (final appt in appointments) {
       final room = appt.room;
-      final day = DateFormat('E').format(appt.startTime); // Mon, Tue, ...
+      final day = DateFormat('E').format(appt.startTime);
 
       scheduleMap.putIfAbsent(room, () => {});
       scheduleMap[room]!.putIfAbsent(day, () => []);
@@ -38,88 +37,142 @@ class WeeklyScheduleTable extends StatelessWidget {
 
     final sortedRooms = scheduleMap.keys.toList()..sort();
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Table(
-        border: TableBorder.all(color: Colors.grey.shade400),
-        defaultColumnWidth: FixedColumnWidth(170),
-        children: [
-          // Header row
-          TableRow(
-            decoration: BoxDecoration(color: Colors.grey.shade300),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final totalWidth = constraints.maxWidth;
+        final columnCount = 1 + weekdays.length;
+        final columnWidth = totalWidth / columnCount;
+
+        return SingleChildScrollView(
+          child: Table(
+            border: TableBorder.all(color: Colors.grey.shade400),
+            defaultColumnWidth: FixedColumnWidth(columnWidth),
             children: [
-              const Padding(
-                padding: EdgeInsets.all(8),
-                child: Text(
-                  'Phòng',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              ...weekdays.map((day) => Padding(
-                padding: const EdgeInsets.all(8),
-                child: Text(
-                  day,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              )),
-            ],
-          ),
-
-          // Rows: từng phòng
-          ...sortedRooms.map((room) {
-            final roomSchedule = scheduleMap[room]!;
-
-            return TableRow(
-              children: [
-                // Phòng học
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(room, style: const TextStyle(fontWeight: FontWeight.bold)),
-                ),
-                // Cột theo thứ
-                ...weekdays.map((day) {
-                  final appts = roomSchedule[day] ?? [];
-                  if (appts.isEmpty) return const SizedBox(height: 60);
-
-                  return Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: appts.map((e) {
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 4),
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade100,
-                            borderRadius: BorderRadius.circular(4),
+              // Header row
+              TableRow(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: Text(
+                        'Phòng',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  ...List.generate(7, (index) {
+                    final date = DateTime(2025, 7, 14).add(Duration(days: index));
+                    final weekday = DateFormat('E').format(date);
+                    final day = DateFormat('dd').format(date);
+                    return Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        children: [
+                          Text(
+                            weekday,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                DateFormat('HH:mm').format(e.startTime),
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              Text(
-                                '${e.notes}', // ví dụ: MS 7 - Toán Lớp 7
-                                style: const TextStyle(
-                                  fontSize: 13, fontWeight: FontWeight.bold,
+                          Text(
+                            day,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+              ...sortedRooms.map((room) {
+                final roomSchedule = scheduleMap[room]!;
+
+                return TableRow(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(room, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    ...weekdays.map((day) {
+                      final appts = roomSchedule[day] ?? [];
+
+                      final morning = appts.where((e) => e.startTime.hour < 12).toList();
+                      final afternoon = appts.where((e) => e.startTime.hour >= 12).toList();
+
+                      if (appts.isEmpty) return const SizedBox(height: 60);
+
+                      return SizedBox(
+                        height: 200,
+                        child: Column(
+                          children: [
+                            // Phần sáng
+                            Expanded(
+                              child: ScrollConfiguration(
+                                behavior: const ScrollBehavior().copyWith(overscroll: false),
+                                child: ListView(
+                                  padding: EdgeInsets.all(4),
+                                  children: morning.map((e) => _buildAppointmentBox(e)).toList(),
                                 ),
                               ),
-                              Text(
-                                e.teacher,
-                                style: const TextStyle(fontSize: 12),
+                            ),
+
+                            // Divider nếu có cả sáng và chiều
+                            if (morning.isNotEmpty && afternoon.isNotEmpty) const Divider(thickness: 1, height: 1, color: Colors.grey),
+                            // Phần chiều
+                            Expanded(
+                              child: ScrollConfiguration(
+                                behavior: const ScrollBehavior().copyWith(overscroll: false),
+                                child: ListView(
+                                  padding: EdgeInsets.all(4),
+                                  children: afternoon.map((e) => _buildAppointmentBox(e)).toList(),
+                                ),
                               ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  );
-                }).toList(),
-              ],
-            );
-          }),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAppointmentBox(AppointmentMoon e) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: Colors.green.shade100,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            DateFormat('HH:mm').format(e.startTime),
+            style: const TextStyle(fontSize: 12),
+          ),
+          Text(
+            '${e.notes}',
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            e.teacher,
+            style: const TextStyle(fontSize: 12),
+          ),
         ],
       ),
     );

@@ -75,7 +75,7 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
         children: [
           _buildCalendar(),
           if (isWeekView)
-            Positioned(
+            Positioned.fill(
               top: 40,
               child: WeeklyScheduleTable(listData: appointments),
             ),
