@@ -11,6 +11,11 @@ extension DateTimeExt on DateTime {
     var d = this;
     return DateTime(d.year, d.month, d.day);
   }
+
+  ///
+  bool isSameDay(DateTime date) {
+    return day == date.day && month == date.month && year == date.year;
+  }
 }
 
 extension StringExt on String {
@@ -39,7 +44,7 @@ extension intExt on int {
     } else if (this >= 1000) {
       return '${(this / 1000).toStringAsFixed(1)}k';
     } else {
-      return this.toString();
+      return toString();
     }
   }
 }

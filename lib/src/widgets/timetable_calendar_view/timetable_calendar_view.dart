@@ -73,12 +73,15 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
     return Portal(
       child: Stack(
         children: [
-          _buildCalendar(),
           if (isWeekView)
             Positioned.fill(
               top: 40,
-              child: WeeklyScheduleTable(listData: appointments),
+              child: WeeklyScheduleTable(
+                listData: appointments,
+                initDate: controller.displayDate ?? DateTime.now(),
+              ),
             ),
+          Positioned.fill(child: _buildCalendar()),
         ],
       ),
     );
@@ -86,129 +89,138 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
 
   Widget _buildCalendar() {
     final isWeekView = controller.view == CalendarView.week;
-    return SfCalendar(
-      view: CalendarView.week,
-      controller: controller,
-      showDatePickerButton: true,
-      showWeekNumber: !isWeekView,
-      firstDayOfWeek: 1,
-      showCurrentTimeIndicator: false,
-      onViewChanged: (details) {
-        final dates = details.visibleDates;
-        widget.onChangeDateFillter?.call(dates.first, dates.last);
-      },
-      onSelectionChanged: (calendarSelectionDetails) {
-        if (controller.view == CalendarView.month) {
-          controller
-            ..view = CalendarView.day
-            ..selectedDate = calendarSelectionDetails.date
-            ..displayDate = calendarSelectionDetails.date;
-        }
-      },
-      initialSelectedDate: widget.initialSelectedDate ?? DateTime.now(),
-      initialDisplayDate: widget.initialSelectedDate ?? DateTime.now(),
-      showTodayButton: true,
-      headerStyle: CalendarHeaderStyle(
-        backgroundColor: Theme.of(context).primaryColor,
-        textStyle: TextStyle(fontSize: 22, color: Colors.white),
-      ),
-      timeSlotViewSettings: TimeSlotViewSettings(
-        startHour: 6,
-        timeFormat: 'HH:mm',
-        timeIntervalHeight: isWeekView ? 0.001 : 40,
-      ),
-      viewHeaderStyle: const ViewHeaderStyle(
-        backgroundColor: Colors.white,
-        dayTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        dateTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-      ),
-      viewHeaderHeight: isWeekView ? 0 : 60,
-      allowedViews: const [
-        CalendarView.day,
-        CalendarView.week,
-        CalendarView.month,
-      ],
-      resourceViewHeaderBuilder: (BuildContext context, ResourceViewHeaderDetails details) {
-        final date = DateTime.now();
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              DateFormat('EEEE').format(date), // Hiển thị Sunday, Monday, ...
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              DateFormat('d').format(date), // Hiển thị ngày (số)
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        color: isWeekView ? Colors.red : null,
+        height: isWeekView ? 40 : null,
+        child: SfCalendar(
+          view: CalendarView.week,
+          controller: controller,
+          showDatePickerButton: true,
+          showWeekNumber: true,
+          firstDayOfWeek: 1,
+          showCurrentTimeIndicator: false,
+          allowViewNavigation: true,
+          showNavigationArrow: true,
+          onViewChanged: (details) {
+            final dates = details.visibleDates;
+            widget.onChangeDateFillter?.call(dates.first, dates.last);
+          },
+          onSelectionChanged: (calendarSelectionDetails) {
+            if (controller.view == CalendarView.month) {
+              controller
+                ..view = CalendarView.day
+                ..selectedDate = calendarSelectionDetails.date
+                ..displayDate = calendarSelectionDetails.date;
+            }
+          },
+          initialSelectedDate: widget.initialSelectedDate ?? DateTime.now(),
+          initialDisplayDate: widget.initialSelectedDate ?? DateTime.now(),
+          showTodayButton: true,
+          headerStyle: CalendarHeaderStyle(
+            backgroundColor: Theme.of(context).primaryColor,
+            textStyle: TextStyle(fontSize: 22, color: Colors.white),
+          ),
+          timeSlotViewSettings: TimeSlotViewSettings(
+            startHour: 6,
+            timeFormat: 'HH:mm',
+            timeIntervalHeight: isWeekView ? 0.001 : 40,
+          ),
+          viewHeaderStyle: const ViewHeaderStyle(
+            backgroundColor: Colors.white,
+            dayTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            dateTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+          viewHeaderHeight: isWeekView ? 0 : 60,
+          allowedViews: const [
+            CalendarView.day,
+            CalendarView.week,
+            CalendarView.month,
           ],
-        );
-      },
-      allowAppointmentResize: true,
-      scheduleViewMonthHeaderBuilder: (context, details) {
-        return Text('data');
-      },
-      monthViewSettings: MonthViewSettings(
-        showTrailingAndLeadingDates: false,
-        appointmentDisplayCount: 0,
-        monthCellStyle: MonthCellStyle(),
-      ),
-      monthCellBuilder: (context, details) {
-        return Container(
-          decoration: BoxDecoration(border: Border.all(width: 0.1)),
-          child: Column(
-            children: [
-              Text(
-                details.date.day.toString(),
-                overflow: TextOverflow.ellipsis,
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: List.generate(
-                      details.appointments.toList().length > 3 ? 3 : details.appointments.toList().length,
-                      (index) {
-                        final appointment = details.appointments.toList()[index] as AppointmentMoon;
-                        return ApointmentMonthItemView(
-                          ap: appointment,
-                        );
-                      },
-                    ),
-                  ),
+          resourceViewHeaderBuilder: (BuildContext context, ResourceViewHeaderDetails details) {
+            final date = DateTime.now();
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  DateFormat('EEEE').format(date), // Hiển thị Sunday, Monday, ...
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-              ),
-              if (details.appointments.toList().length > 3) ...[
-                Container(
-                  margin: EdgeInsets.only(top: 4, bottom: 4),
-                  width: 24,
-                  height: 24,
-                  padding: EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.blue,
-                  ),
-                  child: FittedBox(
-                    child: Text(
-                      '+${details.appointments.toList().length - 3}',
-                      style: TextStyle(color: Colors.white, fontSize: 12),
-                    ),
+                Text(
+                  DateFormat('d').format(date), // Hiển thị ngày (số)
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
-            ],
+            );
+          },
+          allowAppointmentResize: true,
+          scheduleViewMonthHeaderBuilder: (context, details) {
+            return Text('data');
+          },
+          monthViewSettings: MonthViewSettings(
+            showTrailingAndLeadingDates: false,
+            appointmentDisplayCount: 0,
+            monthCellStyle: MonthCellStyle(),
           ),
-        );
-      },
-      appointmentBuilder: (context, details) {
-        final appointment = details.appointments.toList().first as AppointmentMoon;
-        return ApointmentWeekItemView(ap: appointment);
-      },
-      dataSource: MeetingDataSource(
-        appointments,
-        // getMeetings(),
+          monthCellBuilder: (context, details) {
+            return Container(
+              decoration: BoxDecoration(border: Border.all(width: 0.1)),
+              child: Column(
+                children: [
+                  Text(
+                    details.date.day.toString(),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: List.generate(
+                          details.appointments.toList().length > 3 ? 3 : details.appointments.toList().length,
+                          (index) {
+                            final appointment = details.appointments.toList()[index] as AppointmentMoon;
+                            return ApointmentMonthItemView(
+                              ap: appointment,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (details.appointments.toList().length > 3) ...[
+                    Container(
+                      margin: EdgeInsets.only(top: 4, bottom: 4),
+                      width: 24,
+                      height: 24,
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.blue,
+                      ),
+                      child: FittedBox(
+                        child: Text(
+                          '+${details.appointments.toList().length - 3}',
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
+          appointmentBuilder: (context, details) {
+            final appointment = details.appointments.toList().first as AppointmentMoon;
+            return ApointmentWeekItemView(ap: appointment);
+          },
+          dataSource: MeetingDataSource(
+            appointments,
+            // getMeetings(),
+          ),
+        ),
       ),
     );
   }

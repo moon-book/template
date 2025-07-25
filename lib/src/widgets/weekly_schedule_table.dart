@@ -8,10 +8,12 @@ import 'package:template/template.dart';
 class WeeklyScheduleTable extends StatelessWidget {
   const WeeklyScheduleTable({
     required this.listData,
+    required this.initDate,
     super.key,
   });
 
   final List<AppointmentMoon> listData;
+  final DateTime initDate;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +68,7 @@ class WeeklyScheduleTable extends StatelessWidget {
                       ),
                     ),
                     ...List.generate(7, (index) {
-                      final date = DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1)).add(Duration(days: index));
+                      final date = initDate.subtract(Duration(days: initDate.weekday - 1)).add(Duration(days: index));
                       final weekday = DateFormat('E').format(date);
                       final day = DateFormat('dd').format(date);
                       return Padding(
@@ -82,7 +84,7 @@ class WeeklyScheduleTable extends StatelessWidget {
                             ),
                             Container(
                               padding: const EdgeInsets.all(6),
-                              decoration: day == DateFormat('dd').format(DateTime.now())
+                              decoration: date.isSameDay(DateTime.now())
                                   ? BoxDecoration(
                                       borderRadius: BorderRadius.circular(999),
                                       color: Theme.of(context).primaryColor,
@@ -90,10 +92,10 @@ class WeeklyScheduleTable extends StatelessWidget {
                                   : null,
                               child: Text(
                                 day,
-                                style:  TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: day == DateFormat('dd').format(DateTime.now()) ?Colors.white:null,
+                                  color: day == DateFormat('dd').format(DateTime.now()) ? Colors.white : null,
                                 ),
                               ),
                             ),
@@ -182,35 +184,40 @@ class WeeklyScheduleTable extends StatelessWidget {
   }
 
   Widget _buildAppointmentBox(AppointmentMoon e, BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 4),
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: Color.lerp(e.color, Colors.white, 0.8),
-        borderRadius: BorderRadius.circular(4),
-        border: Border(
-          left: BorderSide(
-            color: e.color, //Theme.of(context).primaryColor,
-            width: 3,
+    return GestureDetector(
+      onDoubleTap: () {
+        e.onDoubleTap?.call();
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 4),
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Color.lerp(e.color, Colors.white, 0.8),
+          borderRadius: BorderRadius.circular(4),
+          border: Border(
+            left: BorderSide(
+              color: e.color, //Theme.of(context).primaryColor,
+              width: 3,
+            ),
           ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            DateFormat('HH:mm').format(e.startTime),
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            e.className,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            e.teacher,
-            style: const TextStyle(fontSize: 13),
-          ),
-        ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              DateFormat('HH:mm').format(e.startTime),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              e.className,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              e.teacher,
+              style: const TextStyle(fontSize: 13),
+            ),
+          ],
+        ),
       ),
     );
   }
