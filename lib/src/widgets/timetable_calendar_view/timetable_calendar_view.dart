@@ -14,13 +14,15 @@ import '../weekly_schedule_table.dart';
 class TimetableCalendartView extends StatefulWidget {
   const TimetableCalendartView({
     required this.appointments,
+    required this.listRoomSession,
     super.key,
     this.onChangeDateFillter,
     this.initialSelectedDate,
   });
 
   final List<AppointmentMoon> appointments;
-  final void Function(DateTime? startDate, DateTime? endDate)? onChangeDateFillter;
+  final List<WeeklySessionByRoom> listRoomSession;
+  final void Function(DateTime? startDate, DateTime? endDate, bool filterByRoom)? onChangeDateFillter;
   final DateTime? initialSelectedDate;
 
   @override
@@ -79,8 +81,8 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
             Positioned.fill(
               top: 40,
               child: WeeklyScheduleTable(
-                listData: appointments,
                 initDate: controller.displayDate ?? DateTime.now(),
+                listRoomSession: widget.listRoomSession,
               ),
             ),
           _buildCalendar(),
@@ -106,7 +108,7 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
           showNavigationArrow: true,
           onViewChanged: (details) {
             final dates = details.visibleDates;
-            widget.onChangeDateFillter?.call(dates.first, dates.last);
+            widget.onChangeDateFillter?.call(dates.first, dates.last, controller.view == CalendarView.week);
           },
           onSelectionChanged: (calendarSelectionDetails) {
             if (controller.view == CalendarView.month) {
@@ -531,4 +533,16 @@ class AppointmentMoon extends Appointment {
   String teacher;
   String room;
   VoidCallback? onDoubleTap;
+}
+
+class WeeklySessionByRoom {
+  WeeklySessionByRoom({
+    required this.roomId,
+    required this.roomName,
+    required this.session,
+  });
+
+  final int roomId;
+  final String roomName;
+  final List<List<AppointmentMoon>> session;
 }
