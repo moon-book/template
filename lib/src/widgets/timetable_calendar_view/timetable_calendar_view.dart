@@ -36,14 +36,16 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
 
   @override
   void didUpdateWidget(covariant TimetableCalendartView oldWidget) {
-    if (oldWidget.appointments != widget.appointments) {
-      setState(() {
-        appointments = widget.appointments
-          ..sort(
-            (a, b) => a.startTime.compareTo(b.startTime),
-          );
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          appointments = widget.appointments
+            ..sort(
+              (a, b) => a.startTime.compareTo(b.startTime),
+            );
+        });
+      }
+    });
     super.didUpdateWidget(oldWidget);
   }
 
@@ -81,7 +83,7 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
                 initDate: controller.displayDate ?? DateTime.now(),
               ),
             ),
-          Positioned.fill(child: _buildCalendar()),
+          _buildCalendar(),
         ],
       ),
     );
@@ -91,8 +93,7 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
     final isWeekView = controller.view == CalendarView.week;
     return Align(
       alignment: Alignment.topCenter,
-      child: Container(
-        color: isWeekView ? Colors.red : null,
+      child: SizedBox(
         height: isWeekView ? 40 : null,
         child: SfCalendar(
           view: CalendarView.week,
