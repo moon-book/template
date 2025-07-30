@@ -97,7 +97,7 @@ class WeeklyScheduleTable extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: day == DateFormat('dd').format(DateTime.now()) ? Colors.white : null,
+                                  color: date.isSameDay(DateTime.now()) ? Colors.white : null,
                                 ),
                               ),
                             ),
