@@ -143,7 +143,7 @@ class WeeklyScheduleTable extends StatelessWidget {
                                   room,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                                    fontSize: 13,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -237,79 +237,79 @@ class _AppointmentItemViewState extends State<_AppointmentItemView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Gap(4),
+                const Gap(4),
                 Container(
-                  constraints: BoxConstraints(
+                  constraints: const BoxConstraints(
                     maxWidth: 300,
                     minWidth: 100,
                   ),
                   child: Text(
                     widget.ap.subject,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-                Gap(2),
+                const Gap(2),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.book,
                       // color: Colors.blue,
                       size: 16,
                     ),
-                    Gap(4),
+                    const Gap(4),
                     Text(
                       widget.ap.sessionName,
-                      style: TextStyle(fontSize: 12),
+                      style: const TextStyle(fontSize: 12),
                     ),
                   ],
                 ),
-                Gap(2),
+                const Gap(2),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.person_2_rounded,
                       // color: Colors.blue,
                       size: 16,
                     ),
-                    Gap(4),
+                    const Gap(4),
                     Text(
                       widget.ap.teacher,
-                      style: TextStyle(fontSize: 12),
+                      style: const TextStyle(fontSize: 12),
                     ),
                   ],
                 ),
-                Gap(2),
+                const Gap(2),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.room,
                       // color: Colors.blue,
                       size: 16,
                     ),
-                    Gap(4),
+                    const Gap(4),
                     Text(
                       widget.ap.room,
-                      style: TextStyle(fontSize: 12),
+                      style: const TextStyle(fontSize: 12),
                     ),
                   ],
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.timer,
                       color: Colors.green,
                       size: 16,
                     ),
-                    Gap(4),
+                    const Gap(4),
                     Text(
                       '${DateFormat('HH:mm').format(widget.ap.startTime)} - ${DateFormat('HH:mm').format(widget.ap.endTime)}',
-                      style: TextStyle(fontSize: 12),
+                      style: const TextStyle(fontSize: 12),
                     ),
                   ],
                 ),
@@ -350,15 +350,15 @@ class _AppointmentItemViewState extends State<_AppointmentItemView> {
                       children: [
                         TextSpan(
                           text: DateFormat('HH:mm').format(widget.ap.startTime),
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 12,),
                         ),
                         const TextSpan(
-                          text: ' ',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                          text: ' - ',
+                          style: TextStyle(fontSize: 12),
                         ),
                         TextSpan(
                           text: widget.ap.teacher,
-                          style: const TextStyle(fontSize: 13),
+                          style: const TextStyle(fontSize: 12),
                         ),
                       ],
                     ),
