@@ -9,37 +9,24 @@ import 'package:template/template.dart';
 
 class WeeklyScheduleTable extends StatelessWidget {
   const WeeklyScheduleTable({
-    required this.listData,
     required this.initDate,
-    super.key,
+    required this.listRoomSession, super.key,
   });
 
-  final List<AppointmentMoon> listData;
   final DateTime initDate;
+  final List<WeeklySessionByRoom> listRoomSession;
 
   @override
   Widget build(BuildContext context) {
-    if (listData.isEmpty) {
+    if (listRoomSession.isEmpty) {
       return const Text('Không có dữ liệu!');
     } else {
-      return _buildRoomScheduleTable(listData);
+      return _buildRoomScheduleTable(listRoomSession);
     }
   }
 
-  Widget _buildRoomScheduleTable(List<AppointmentMoon> appointments) {
+  Widget _buildRoomScheduleTable(List<WeeklySessionByRoom> appointments) {
     final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    final scheduleMap = <String, Map<String, List<AppointmentMoon>>>{};
-
-    for (final appt in appointments) {
-      final room = appt.room;
-      final day = DateFormat('E').format(appt.startTime);
-
-      scheduleMap.putIfAbsent(room, () => {});
-      scheduleMap[room]!.putIfAbsent(day, () => []);
-      scheduleMap[room]![day]!.add(appt);
-    }
-
-    final sortedRooms = scheduleMap.keys.toList()..sort();
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -129,18 +116,17 @@ class WeeklyScheduleTable extends StatelessWidget {
                   border: TableBorder.all(color: Colors.grey.shade400),
                   columnWidths: columnWidths,
                   children: [
-                    ...sortedRooms.map((room) {
-                      final roomSchedule = scheduleMap[room]!;
-
+                    ...listRoomSession.map((roomData) {
                       return TableRow(
                         children: [
                           TableCell(
                             verticalAlignment: TableCellVerticalAlignment.fill,
-                            child: ColoredBox(
+                            child: Container(
                               color: Colors.grey.shade200,
+                              constraints: const BoxConstraints(minHeight: 60),
                               child: Center(
                                 child: Text(
-                                  room,
+                                  roomData.roomName,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 13,
@@ -151,34 +137,40 @@ class WeeklyScheduleTable extends StatelessWidget {
                             ),
                           ),
                           ...weekdays.map((day) {
-                            final appts = roomSchedule[day] ?? [];
+                            final morning = roomData.session[0].where((e) {
+                              return DateFormat('E').format(e.startTime) == day;
+                            }).toList();
 
-                            final morning = appts.where((e) => e.startTime.hour < 12).toList();
-                            final afternoon = appts.where((e) => e.startTime.hour >= 12).toList();
+                            final afternoon = roomData.session[1].where((e) {
+                              return DateFormat('E').format(e.startTime) == day;
+                            }).toList();
 
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Gap(8),
-                                ListView(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  children: morning.map((e) => _AppointmentItemView(ap: e)).toList(),
-                                ),
-                                if (morning.isNotEmpty && afternoon.isNotEmpty)
-                                  const Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 4),
-                                    child: Divider(thickness: 1, height: 1, color: Colors.grey),
+                            return Container(
+                              constraints: const BoxConstraints(minHeight: 60),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Gap(8),
+                                  ListView(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    children: morning.map((e) => _AppointmentItemView(ap: e)).toList(),
                                   ),
-                                ListView(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  children: afternoon.map((e) => _AppointmentItemView(ap: e)).toList(),
-                                ),
-                                const Gap(8),
-                              ],
+                                  if (morning.isNotEmpty && afternoon.isNotEmpty)
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 4),
+                                      child: Divider(thickness: 1, height: 1, color: Colors.grey),
+                                    ),
+                                  ListView(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    children: afternoon.map((e) => _AppointmentItemView(ap: e)).toList(),
+                                  ),
+                                  const Gap(8),
+                                ],
+                              ),
                             );
                           }),
                         ],
@@ -212,7 +204,6 @@ class _AppointmentItemViewState extends State<_AppointmentItemView> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       height: 60,
-      color: Colors.white,
       child: PortalTarget(
         visible: _showTooltip,
         fit: StackFit.expand,
