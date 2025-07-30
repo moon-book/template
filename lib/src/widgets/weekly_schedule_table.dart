@@ -2,6 +2,8 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:flutter/material.dart';
+import 'package:flutter_portal/flutter_portal.dart';
+import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:template/template.dart';
 
@@ -42,21 +44,34 @@ class WeeklyScheduleTable extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final totalWidth = constraints.maxWidth;
-        final columnCount = 1 + weekdays.length;
-        final columnWidth = totalWidth / columnCount;
+        final columnWidth = (totalWidth - 150) / weekdays.length;
+
+        final columnWidths = <int, TableColumnWidth>{
+          0: const FixedColumnWidth(150),
+          1: FixedColumnWidth(columnWidth),
+          2: FixedColumnWidth(columnWidth),
+          3: FixedColumnWidth(columnWidth),
+          4: FixedColumnWidth(columnWidth),
+          5: FixedColumnWidth(columnWidth),
+          6: FixedColumnWidth(columnWidth),
+          7: FixedColumnWidth(columnWidth),
+        };
 
         return Column(
           children: [
             Table(
               border: TableBorder.all(color: Colors.grey.shade400),
-              defaultColumnWidth: FixedColumnWidth(columnWidth),
+              columnWidths: columnWidths,
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               children: [
                 // Header row
                 TableRow(
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(
+                    Container(
+                      color: Colors.grey.shade200,
+                      height: 80,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: const Center(
                         child: Text(
                           'PHÒNG HỌC',
                           style: TextStyle(
@@ -110,23 +125,27 @@ class WeeklyScheduleTable extends StatelessWidget {
             Flexible(
               child: SingleChildScrollView(
                 child: Table(
-                  defaultColumnWidth: FixedColumnWidth(columnWidth),
+                  // defaultColumnWidth: FixedColumnWidth(columnWidth),
                   border: TableBorder.all(color: Colors.grey.shade400),
+                  columnWidths: columnWidths,
                   children: [
                     ...sortedRooms.map((room) {
                       final roomSchedule = scheduleMap[room]!;
 
                       return TableRow(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(vertical: 32),
-                            height: 200,
-                            child: Center(
-                              child: Text(
-                                room,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                          TableCell(
+                            verticalAlignment: TableCellVerticalAlignment.fill,
+                            child: ColoredBox(
+                              color: Colors.grey.shade200,
+                              child: Center(
+                                child: Text(
+                                  room,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
                               ),
                             ),
@@ -137,37 +156,29 @@ class WeeklyScheduleTable extends StatelessWidget {
                             final morning = appts.where((e) => e.startTime.hour < 12).toList();
                             final afternoon = appts.where((e) => e.startTime.hour >= 12).toList();
 
-                            if (appts.isEmpty) return const SizedBox(height: 60);
-
-                            return SizedBox(
-                              height: 200,
-                              child: Column(
-                                children: [
-                                  // Phần sáng
-                                  Expanded(
-                                    child: ScrollConfiguration(
-                                      behavior: const ScrollBehavior().copyWith(overscroll: false),
-                                      child: ListView(
-                                        padding: const EdgeInsets.all(4),
-                                        children: morning.map((e) => _buildAppointmentBox(e, context)).toList(),
-                                      ),
-                                    ),
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Gap(8),
+                                ListView(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  children: morning.map((e) => _AppointmentItemView(ap: e)).toList(),
+                                ),
+                                if (morning.isNotEmpty && afternoon.isNotEmpty)
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 4),
+                                    child: Divider(thickness: 1, height: 1, color: Colors.grey),
                                   ),
-
-                                  // Divider nếu có cả sáng và chiều
-                                  if (morning.isNotEmpty && afternoon.isNotEmpty) const Divider(thickness: 1, height: 1, color: Colors.grey),
-                                  // Phần chiều
-                                  Expanded(
-                                    child: ScrollConfiguration(
-                                      behavior: const ScrollBehavior().copyWith(overscroll: false),
-                                      child: ListView(
-                                        padding: const EdgeInsets.all(4),
-                                        children: afternoon.map((e) => _buildAppointmentBox(e, context)).toList(),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ListView(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  children: afternoon.map((e) => _AppointmentItemView(ap: e)).toList(),
+                                ),
+                                const Gap(8),
+                              ],
                             );
                           }),
                         ],
@@ -182,41 +193,180 @@ class WeeklyScheduleTable extends StatelessWidget {
       },
     );
   }
+}
 
-  Widget _buildAppointmentBox(AppointmentMoon e, BuildContext context) {
-    return GestureDetector(
-      onDoubleTap: () {
-        e.onDoubleTap?.call();
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 4),
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: Color.lerp(e.color, Colors.white, 0.8),
-          borderRadius: BorderRadius.circular(4),
-          border: Border(
-            left: BorderSide(
-              color: e.color, //Theme.of(context).primaryColor,
-              width: 3,
+class _AppointmentItemView extends StatefulWidget {
+  const _AppointmentItemView({required this.ap});
+
+  final AppointmentMoon ap;
+
+  @override
+  State<_AppointmentItemView> createState() => _AppointmentItemViewState();
+}
+
+class _AppointmentItemViewState extends State<_AppointmentItemView> {
+  bool _showTooltip = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      height: 60,
+      color: Colors.white,
+      child: PortalTarget(
+        visible: _showTooltip,
+        fit: StackFit.expand,
+        anchor: const Aligned(
+          follower: Alignment.topCenter,
+          target: Alignment.bottomCenter,
+          widthFactor: 1,
+          offset: Offset(0, 10),
+        ),
+        portalFollower: MouseRegion(
+          onExit: (_) => setState(() => _showTooltip = false),
+          onEnter: (_) => setState(() => _showTooltip = true),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                AppBoxShadow.ksSmallShadow(),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Gap(4),
+                Container(
+                  constraints: BoxConstraints(
+                    maxWidth: 300,
+                    minWidth: 100,
+                  ),
+                  child: Text(
+                    widget.ap.subject,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Gap(2),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.book,
+                      // color: Colors.blue,
+                      size: 16,
+                    ),
+                    Gap(4),
+                    Text(
+                      widget.ap.sessionName,
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+                Gap(2),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.person_2_rounded,
+                      // color: Colors.blue,
+                      size: 16,
+                    ),
+                    Gap(4),
+                    Text(
+                      widget.ap.teacher,
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+                Gap(2),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.room,
+                      // color: Colors.blue,
+                      size: 16,
+                    ),
+                    Gap(4),
+                    Text(
+                      widget.ap.room,
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.timer,
+                      color: Colors.green,
+                      size: 16,
+                    ),
+                    Gap(4),
+                    Text(
+                      '${DateFormat('HH:mm').format(widget.ap.startTime)} - ${DateFormat('HH:mm').format(widget.ap.endTime)}',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              DateFormat('HH:mm').format(e.startTime),
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+        child: MouseRegion(
+          onEnter: (_) => setState(() => _showTooltip = true),
+          onExit: (_) => setState(() => _showTooltip = false),
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onDoubleTap: widget.ap.onDoubleTap,
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 4),
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Color.lerp(widget.ap.color, Colors.white, 0.8),
+                borderRadius: BorderRadius.circular(4),
+                border: Border(
+                  left: BorderSide(
+                    color: widget.ap.color, //Theme.of(context).primaryColor,
+                    width: 3,
+                  ),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.ap.className,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: DateFormat('HH:mm').format(widget.ap.startTime),
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                        ),
+                        const TextSpan(
+                          text: ' ',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: widget.ap.teacher,
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Text(
-              e.className,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              e.teacher,
-              style: const TextStyle(fontSize: 13),
-            ),
-          ],
+          ),
         ),
       ),
     );
