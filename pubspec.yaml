@@ -41,10 +41,6 @@ dependencies:
   flutter_portal: ^1.1.4
   universal_html: ^2.2.4
 
-  easy_sidemenu:
-    git:
-      url: https://github.com/giangdk/easy_sidemenu.git
-      ref: master
 dev_dependencies:
   flutter_test:
     sdk: flutter
