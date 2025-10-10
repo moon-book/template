@@ -96,7 +96,7 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
     return Align(
       alignment: Alignment.topCenter,
       child: SizedBox(
-        height: isWeekView ? 40 : null,
+        // height: isWeekView ? 40 : null,
         child: SfCalendar(
           view: CalendarView.week,
           controller: controller,
