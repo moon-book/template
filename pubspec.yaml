@@ -40,6 +40,10 @@ dependencies:
   syncfusion_flutter_calendar: 27.2.5
   flutter_portal: ^1.1.4
   universal_html: ^2.2.4
+  easy_sidemenu:
+    git:
+      url: https://github.com/giangdk/easy_sidemenu.git
+      ref: 6840648b028aba9395bc0125e681c5bb5c41d9a3
 
 dev_dependencies:
   flutter_test:
