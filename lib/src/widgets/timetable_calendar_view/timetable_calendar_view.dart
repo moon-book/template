@@ -96,11 +96,47 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
     return Align(
       alignment: Alignment.topCenter,
       child: SizedBox(
-        // height: isWeekView ? 40 : null,
+        height: isWeekView ? 40 : null,
         child: SfCalendar(
           view: CalendarView.week,
           controller: controller,
-          showDatePickerButton: true,
+          onTap: (calendarTapDetails) async {
+            await showDialog<void>(
+              context: context,
+              builder: (context) {
+                final tempDate = controller.selectedDate ?? DateTime.now();
+                return Dialog(
+                  constraints: BoxConstraints(maxHeight: 300,maxWidth: 300),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  backgroundColor: const Color(0xFFF5F3F9),
+                  child: CalendarDatePicker(
+                    initialDate: tempDate,
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime(2100),
+                    onDateChanged: (date) {
+                      Navigator.pop(context);
+                      controller.displayDate = date;
+                      controller.selectedDate = date;
+                      debugPrint('Picked date: $date');
+                    },
+                  ),
+                );
+              },
+            );
+            // final picked = await showDatePicker(
+            //   context: context,
+            //   initialDate: controller.selectedDate ?? DateTime.now(),
+            //   firstDate: DateTime(2000),
+            //   lastDate: DateTime(2100),
+            //   initialEntryMode: DatePickerEntryMode.calendarOnly,
+            // );
+            //
+            // if (picked != null) {
+            //   controller.displayDate = picked;
+            //   controller.selectedDate = picked;
+            //   debugPrint('Picked date: $picked');
+            // }
+          },
           showWeekNumber: true,
           firstDayOfWeek: 1,
           showCurrentTimeIndicator: false,
