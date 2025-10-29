@@ -106,7 +106,7 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
               builder: (context) {
                 final tempDate = controller.selectedDate ?? DateTime.now();
                 return Dialog(
-                  constraints: BoxConstraints(maxHeight: 300,maxWidth: 300),
+                  constraints: BoxConstraints(maxHeight: 300, maxWidth: 300),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   backgroundColor: const Color(0xFFF5F3F9),
                   child: CalendarDatePicker(
@@ -558,6 +558,9 @@ class AppointmentMoon extends Appointment {
     required this.sessionName,
     required this.teacher,
     required this.room,
+    required this.studentPrepaid,
+    required this.studentFullFee,
+    required this.studentTrial,
     super.color,
     super.notes,
     super.subject,
@@ -569,6 +572,10 @@ class AppointmentMoon extends Appointment {
   String teacher;
   String room;
   VoidCallback? onDoubleTap;
+
+  int studentFullFee;
+  int studentTrial;
+  int studentPrepaid;
 }
 
 class WeeklySessionByRoom {

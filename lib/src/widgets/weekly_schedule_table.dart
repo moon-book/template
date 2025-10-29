@@ -10,7 +10,8 @@ import 'package:template/template.dart';
 class WeeklyScheduleTable extends StatelessWidget {
   const WeeklyScheduleTable({
     required this.initDate,
-    required this.listRoomSession, super.key,
+    required this.listRoomSession,
+    super.key,
   });
 
   final DateTime initDate;
@@ -304,6 +305,74 @@ class _AppointmentItemViewState extends State<_AppointmentItemView> {
                     ),
                   ],
                 ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.payments_rounded,
+                      size: 16,
+                    ),
+                    const Gap(4),
+                    RichText(
+                      text: TextSpan(
+                        text: 'Full phí: ',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.black),
+                        children: [
+                          TextSpan(
+                            text: '${widget.ap.studentFullFee}',
+                            style: const TextStyle(fontWeight: FontWeight.normal),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(2),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.school_rounded,
+                      size: 16,
+                    ),
+                    const Gap(4),
+                    RichText(
+                      text: TextSpan(
+                        text: 'Học thử: ',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.black),
+                        children: [
+                          TextSpan(
+                            text: '${widget.ap.studentTrial}',
+                            style: const TextStyle(fontWeight: FontWeight.normal),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(2),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.attach_money_rounded,
+                      size: 16,
+                    ),
+                    const Gap(4),
+                    RichText(
+                      text: TextSpan(
+                        text: 'Đặt cọc: ',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.black),
+                        children: [
+                          TextSpan(
+                            text: '${widget.ap.studentPrepaid}',
+                            style: const TextStyle(fontWeight: FontWeight.normal),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -341,7 +410,9 @@ class _AppointmentItemViewState extends State<_AppointmentItemView> {
                       children: [
                         TextSpan(
                           text: DateFormat('HH:mm').format(widget.ap.startTime),
-                          style: const TextStyle(fontSize: 12,),
+                          style: const TextStyle(
+                            fontSize: 12,
+                          ),
                         ),
                         const TextSpan(
                           text: ' - ',
