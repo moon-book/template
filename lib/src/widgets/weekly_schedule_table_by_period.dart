@@ -34,153 +34,160 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
       return [];
     }
 
-    const double appointmentHeight = 80; // mỗi appointment cao 80px
-    const double minRoomHeight = 80;     // tối thiểu mỗi phòng 80px
+    const double appointmentHeight = 70;
+    const double minRoomHeight = 40;
 
     return LayoutBuilder(builder: (context, constraints) {
       final totalWidth = constraints.maxWidth;
       const fixedWidth = 150.0;
       final dayWidth = (totalWidth - fixedWidth * 2) / weekdays.length;
 
-      return SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ===== HEADER =====
-            Row(
-              children: [
-                Container(
-                  width: fixedWidth,
-                  padding: const EdgeInsets.all(8),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade400,width: 0.5),
-                  ),
-                  child: const Text('CA HỌC', style: TextStyle(fontWeight: FontWeight.bold)),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ===== HEADER =====
+          Row(
+            children: [
+              Container(
+                width: fixedWidth,
+                padding: const EdgeInsets.all(8),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400, width: 0.25),
                 ),
-                Container(
-                  width: fixedWidth,
-                  padding: const EdgeInsets.all(8),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade400,width: 0.5),
-                  ),
-                  child: const Text('PHÒNG HỌC', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const Text('CA HỌC', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              Container(
+                width: fixedWidth,
+                padding: const EdgeInsets.all(8),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400, width: 0.25),
                 ),
-                ...weekdays.map((d) => Container(
-                  width: dayWidth,
-                  padding: const EdgeInsets.all(8),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade400,width: 0.5),
-                  ),
-                  child: Text(d, style: const TextStyle(fontWeight: FontWeight.bold)),
-                )),
-              ],
-            ),
-
-            // ===== NỘI DUNG =====
-            ...periods.map((period) {
-              // Tính chiều cao từng phòng = số appointment nhiều nhất trong ngày của phòng
-              final roomHeights = period.session.map((room) {
-                var maxAppointmentsInRoom = 0;
-                for (var day in weekdays) {
-                  final morningCount = getSession(room.session, 0)
-                      .where((e) => DateFormat('E').format(e.startTime) == day)
-                      .length;
-                  final afternoonCount = getSession(room.session, 1)
-                      .where((e) => DateFormat('E').format(e.startTime) == day)
-                      .length;
-                  final total = morningCount + afternoonCount;
-                  if (total > maxAppointmentsInRoom) maxAppointmentsInRoom = total;
-                }
-                return (maxAppointmentsInRoom > 0 ? maxAppointmentsInRoom * appointmentHeight : minRoomHeight);
-              }).toList();
-
-              final totalPeriodHeight = roomHeights.fold(0.0, (sum, h) => sum + h);
-
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ===== Cột Ca HỌC =====
-                  Container(
-                    width: fixedWidth,
-                    height: totalPeriodHeight,
-                    alignment: Alignment.center,
+                child: const Text('PHÒNG HỌC', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              ...weekdays.map((d) => Container(
+                    width: dayWidth,
                     padding: const EdgeInsets.all(8),
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400,width: 0.5),
+                      border: Border.all(color: Colors.grey.shade400, width: 0.25),
                     ),
-                    child: Text(period.periodName,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center),
-                  ),
+                    child: Text(d, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  )),
+            ],
+          ),
 
-                  // ===== Cột PHÒNG =====
-                  Column(
+          // ===== NỘI DUNG =====
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(children: [
+                ...periods.map((period) {
+                  // Tính chiều cao từng phòng = số appointment nhiều nhất trong ngày của phòng
+                  final roomHeights = period.session.map((room) {
+                    var maxAppointmentsInRoom = 0;
+                    for (var day in weekdays) {
+                      final morningCount = getSession(room.session, 0).where((e) => DateFormat('E').format(e.startTime) == day).length;
+                      final afternoonCount = getSession(room.session, 1).where((e) => DateFormat('E').format(e.startTime) == day).length;
+                      final total = morningCount + afternoonCount;
+                      if (total > maxAppointmentsInRoom) maxAppointmentsInRoom = total;
+                    }
+                    return (maxAppointmentsInRoom > 0 ? maxAppointmentsInRoom * appointmentHeight : minRoomHeight);
+                  }).toList();
+
+                  final totalPeriodHeight = roomHeights.fold(0.0, (sum, h) => sum + h);
+
+                  return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: List.generate(period.session.length, (i) {
-                      final room = period.session[i];
-                      final roomHeight = roomHeights[i];
-                      return Container(
+                    children: [
+                      // ===== Cột Ca HỌC =====
+                      Container(
                         width: fixedWidth,
-                        height: roomHeight,
-                        alignment: Alignment.centerLeft,
+                        height: totalPeriodHeight,
+                        alignment: Alignment.center,
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade400,width: 0.5),
+                          border: Border(
+                            bottom: BorderSide(color: Colors.grey.shade800, width: 0.25),
+                            top: BorderSide(color : Colors.grey.shade400, width: 0.25),
+                            right: BorderSide(color : Colors.grey.shade400, width: 0.25),
+                            left: BorderSide(color : Colors.grey.shade400, width: 0.25),
+                          ),
                         ),
-                        child: Text(room.roomName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      );
-                    }),
-                  ),
+                        child: Text(period.periodName, style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                      ),
 
-                  // ===== Cột BUỔI HỌC THEO NGÀY =====
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: List.generate(period.session.length, (i) {
-                      final room = period.session[i];
-                      final roomHeight = roomHeights[i];
-
-                      return Row(
-                        children: weekdays.map((day) {
-                          final morning = getSession(room.session, 0)
-                              .where((e) => DateFormat('E').format(e.startTime) == day)
-                              .toList();
-                          final afternoon = getSession(room.session, 1)
-                              .where((e) => DateFormat('E').format(e.startTime) == day)
-                              .toList();
-
+                      // ===== Cột PHÒNG =====
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List.generate(period.session.length, (i) {
+                          final room = period.session[i];
+                          final roomHeight = roomHeights[i];
                           return Container(
-                            width: dayWidth,
+                            width: fixedWidth,
                             height: roomHeight,
-                            padding: const EdgeInsets.all(4),
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade400,width: 0.5),
+                              border: Border(
+                                bottom: BorderSide(color: i == period.session.length - 1 ? Colors.grey.shade800 : Colors.grey.shade400, width: 0.25),
+                                top: BorderSide(color : Colors.grey.shade400, width: 0.25),
+                                right: BorderSide(color : Colors.grey.shade400, width: 0.25),
+                                left: BorderSide(color : Colors.grey.shade400, width: 0.25),
+                              ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ...morning.map((e) => _AppointmentItemView(ap: e)),
-                                if (morning.isNotEmpty && afternoon.isNotEmpty)
-                                  const Divider(height: 1, thickness: 1, color: Colors.grey),
-                                ...afternoon.map((e) => _AppointmentItemView(ap: e)),
-                              ],
-                            ),
+                            child: Text(room.roomName, style: const TextStyle(fontWeight: FontWeight.w500)),
                           );
-                        }).toList(),
-                      );
-                    }),
-                  ),
-                ],
-              );
-            }).toList(),
-          ],
-        ),
+                        }),
+                      ),
+
+                      // ===== Cột BUỔI HỌC THEO NGÀY =====
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List.generate(period.session.length, (i) {
+                          final room = period.session[i];
+                          final roomHeight = roomHeights[i];
+
+                          return Row(
+                            children: weekdays.map((day) {
+                              final morning = getSession(room.session, 0).where((e) => DateFormat('E').format(e.startTime) == day).toList();
+                              final afternoon = getSession(room.session, 1).where((e) => DateFormat('E').format(e.startTime) == day).toList();
+
+                              return Container(
+                                width: dayWidth,
+                                height: roomHeight,
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(color: i == period.session.length - 1 ? Colors.grey.shade800 : Colors.grey.shade400, width: 0.25),
+                                    top: BorderSide(color : Colors.grey.shade400, width: 0.25),
+                                    right: BorderSide(color : Colors.grey.shade400, width: 0.25),
+                                    left: BorderSide(color : Colors.grey.shade400, width: 0.25),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ...morning.map((e) => _AppointmentItemView(ap: e)),
+                                    if (morning.isNotEmpty && afternoon.isNotEmpty) const Divider(height: 1, thickness: 1, color: Colors.grey),
+                                    ...afternoon.map((e) => _AppointmentItemView(ap: e)),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        }),
+                      ),
+                    ],
+                  );
+                })
+              ]),
+            ),
+          ),
+        ],
       );
     });
   }
-
 }
 
 class _AppointmentItemView extends StatefulWidget {
