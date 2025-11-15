@@ -7,6 +7,7 @@ import 'package:flutter_portal/flutter_portal.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:template/src/fork_package/syncfusion_flutter_calendar-27.2.5/lib/calendar.dart';
+import 'package:template/src/widgets/weekly_schedule_table_by_period.dart';
 import 'package:template/template.dart';
 
 import '../weekly_schedule_table.dart';
@@ -15,15 +16,19 @@ class TimetableCalendartView extends StatefulWidget {
   const TimetableCalendartView({
     required this.appointments,
     required this.listRoomSession,
+    this.listRoomSessionByPeriod = const [],
     super.key,
     this.onChangeDateFillter,
     this.initialSelectedDate,
+    this.showRoomSessionByPeriod = false,
   });
 
   final List<AppointmentMoon> appointments;
   final List<WeeklySessionByRoom> listRoomSession;
+  final List<WeeklySessionByPeriod> listRoomSessionByPeriod;
   final void Function(DateTime? startDate, DateTime? endDate, bool filterByRoom)? onChangeDateFillter;
   final DateTime? initialSelectedDate;
+  final bool showRoomSessionByPeriod;
 
   @override
   State<TimetableCalendartView> createState() => _TimetableCalendartViewState();
@@ -80,10 +85,15 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
           if (isWeekView)
             Positioned.fill(
               top: 40,
-              child: WeeklyScheduleTable(
-                initDate: controller.displayDate ?? DateTime.now(),
-                listRoomSession: widget.listRoomSession,
-              ),
+              child: widget.showRoomSessionByPeriod
+                  ? WeeklyScheduleTableByPeriod(
+                      initDate: controller.displayDate ?? DateTime.now(),
+                      listRoomSession: widget.listRoomSessionByPeriod,
+                    )
+                  : WeeklyScheduleTable(
+                      initDate: controller.displayDate ?? DateTime.now(),
+                      listRoomSession: widget.listRoomSession,
+                    ),
             ),
           _buildCalendar(),
         ],
@@ -123,19 +133,6 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
                 );
               },
             );
-            // final picked = await showDatePicker(
-            //   context: context,
-            //   initialDate: controller.selectedDate ?? DateTime.now(),
-            //   firstDate: DateTime(2000),
-            //   lastDate: DateTime(2100),
-            //   initialEntryMode: DatePickerEntryMode.calendarOnly,
-            // );
-            //
-            // if (picked != null) {
-            //   controller.displayDate = picked;
-            //   controller.selectedDate = picked;
-            //   debugPrint('Picked date: $picked');
-            // }
           },
           showWeekNumber: true,
           firstDayOfWeek: 1,
@@ -588,4 +585,14 @@ class WeeklySessionByRoom {
   final int roomId;
   final String roomName;
   final List<List<AppointmentMoon>> session;
+}
+
+class WeeklySessionByPeriod {
+  WeeklySessionByPeriod({
+    required this.session,
+    required this.periodName,
+  });
+
+  final String periodName;
+  final List<WeeklySessionByRoom> session;
 }
