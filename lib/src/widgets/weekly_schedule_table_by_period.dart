@@ -27,15 +27,15 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
   }
 
   Widget buildScheduleByPeriodWithBorder(List<WeeklySessionByPeriod> periods) {
-    final weekdays = ['Mon', 'Tue', 'Wed','Thu',  'Fri', 'Sat', 'Sun'];
+    final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
     List<AppointmentMoon> getSession(List<List<AppointmentMoon>> session, int index) {
       if (session.length > index) return session[index];
       return [];
     }
 
-    const double appointmentHeight = 70;
-    const double minRoomHeight = 40;
+    const double appointmentHeight = 80;
+    const double minRoomHeight = 60;
 
     return LayoutBuilder(builder: (context, constraints) {
       final totalWidth = constraints.maxWidth;
@@ -84,15 +84,26 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
               child: Column(children: [
                 ...periods.map((period) {
                   // Tính chiều cao từng phòng = số appointment nhiều nhất trong ngày của phòng
+                  // (Luôn chừa 1 slot cho morning nếu morning rỗng)
                   final roomHeights = period.session.map((room) {
-                    var maxAppointmentsInRoom = 0;
+                    var maxSlots = 0;
+
                     for (var day in weekdays) {
-                      final morningCount = getSession(room.session, 0).where((e) => DateFormat('E').format(e.startTime) == day).length;
-                      final afternoonCount = getSession(room.session, 1).where((e) => DateFormat('E').format(e.startTime) == day).length;
-                      final total = morningCount + afternoonCount;
-                      if (total > maxAppointmentsInRoom) maxAppointmentsInRoom = total;
+                      var morningCount = getSession(room.session, 0).where((e) => DateFormat('E').format(e.startTime) == day).length;
+
+                      var afternoonCount = getSession(room.session, 1).where((e) => DateFormat('E').format(e.startTime) == day).length;
+
+                      // Luôn chừa 1 ô cho morning nếu morning rỗng
+                      if (morningCount == 0) morningCount = 1;
+
+                      final totalSlots = morningCount + afternoonCount;
+
+                      if (totalSlots > maxSlots) maxSlots = totalSlots;
                     }
-                    return (maxAppointmentsInRoom > 0 ? maxAppointmentsInRoom * appointmentHeight : minRoomHeight);
+
+                    // đảm bảo tối thiểu 1 slot height
+                    final computed = maxSlots * appointmentHeight + 15;
+                    return computed < minRoomHeight ? minRoomHeight : computed;
                   }).toList();
 
                   final totalPeriodHeight = roomHeights.fold(0.0, (sum, h) => sum + h);
@@ -109,9 +120,9 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(color: Colors.grey.shade800, width: 0.25),
-                            top: BorderSide(color : Colors.grey.shade400, width: 0.25),
-                            right: BorderSide(color : Colors.grey.shade400, width: 0.25),
-                            left: BorderSide(color : Colors.grey.shade400, width: 0.25),
+                            top: BorderSide(color: Colors.grey.shade400, width: 0.25),
+                            right: BorderSide(color: Colors.grey.shade400, width: 0.25),
+                            left: BorderSide(color: Colors.grey.shade400, width: 0.25),
                           ),
                         ),
                         child: Text(period.periodName, style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
@@ -131,9 +142,9 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
                             decoration: BoxDecoration(
                               border: Border(
                                 bottom: BorderSide(color: i == period.session.length - 1 ? Colors.grey.shade800 : Colors.grey.shade400, width: 0.25),
-                                top: BorderSide(color : Colors.grey.shade400, width: 0.25),
-                                right: BorderSide(color : Colors.grey.shade400, width: 0.25),
-                                left: BorderSide(color : Colors.grey.shade400, width: 0.25),
+                                top: BorderSide(color: Colors.grey.shade400, width: 0.25),
+                                right: BorderSide(color: Colors.grey.shade400, width: 0.25),
+                                left: BorderSide(color: Colors.grey.shade400, width: 0.25),
                               ),
                             ),
                             child: Text(room.roomName, style: const TextStyle(fontWeight: FontWeight.w500)),
@@ -153,23 +164,32 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
                               final morning = getSession(room.session, 0).where((e) => DateFormat('E').format(e.startTime) == day).toList();
                               final afternoon = getSession(room.session, 1).where((e) => DateFormat('E').format(e.startTime) == day).toList();
 
+                              // NOTE: KHÔNG thay đổi height của cell ở đây — height phải bằng roomHeight đã tính
                               return Container(
                                 width: dayWidth,
                                 height: roomHeight,
                                 padding: const EdgeInsets.all(4),
                                 decoration: BoxDecoration(
                                   border: Border(
-                                    bottom: BorderSide(color: i == period.session.length - 1 ? Colors.grey.shade800 : Colors.grey.shade400, width: 0.25),
-                                    top: BorderSide(color : Colors.grey.shade400, width: 0.25),
-                                    right: BorderSide(color : Colors.grey.shade400, width: 0.25),
-                                    left: BorderSide(color : Colors.grey.shade400, width: 0.25),
+                                    bottom:
+                                        BorderSide(color: i == period.session.length - 1 ? Colors.grey.shade800 : Colors.grey.shade400, width: 0.25),
+                                    top: BorderSide(color: Colors.grey.shade400, width: 0.25),
+                                    right: BorderSide(color: Colors.grey.shade400, width: 0.25),
+                                    left: BorderSide(color: Colors.grey.shade400, width: 0.25),
                                   ),
                                 ),
+                                // Tách rõ 2 khối Morning (ở trên) + Afternoon (ở dưới)
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    ...morning.map((e) => _AppointmentItemView(ap: e)),
+                                    // MORNING: nếu rỗng -> chèn 1 slot trống (chiều cao = appointmentHeight)
+                                    if (morning.isEmpty) SizedBox(height: appointmentHeight) else ...morning.map((e) => _AppointmentItemView(ap: e)),
+
+                                    // Divider chỉ khi cả 2 buổi đều có dữ liệu
                                     if (morning.isNotEmpty && afternoon.isNotEmpty) const Divider(height: 1, thickness: 1, color: Colors.grey),
+
+                                    Gap(4),
+                                    // AFTERNOON: render bình thường (không chèn slot nếu rỗng)
                                     ...afternoon.map((e) => _AppointmentItemView(ap: e)),
                                   ],
                                 ),
@@ -205,234 +225,233 @@ class _AppointmentItemViewState extends State<_AppointmentItemView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      height: 60,
-      child: PortalTarget(
-        visible: _showTooltip,
-        fit: StackFit.expand,
-        anchor: const Aligned(
-          follower: Alignment.topCenter,
-          target: Alignment.bottomCenter,
-          widthFactor: 1,
-          offset: Offset(0, 10),
-        ),
-        portalFollower: MouseRegion(
-          onExit: (_) => setState(() => _showTooltip = false),
-          onEnter: (_) => setState(() => _showTooltip = true),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                AppBoxShadow.ksSmallShadow(),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Gap(4),
-                Container(
-                  constraints: const BoxConstraints(
-                    maxWidth: 300,
-                    minWidth: 100,
-                  ),
-                  child: Text(
-                    widget.ap.subject,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                const Gap(2),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.book,
-                      // color: Colors.blue,
-                      size: 16,
-                    ),
-                    const Gap(4),
-                    Text(
-                      widget.ap.sessionName,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ],
-                ),
-                const Gap(2),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.person_2_rounded,
-                      // color: Colors.blue,
-                      size: 16,
-                    ),
-                    const Gap(4),
-                    Text(
-                      widget.ap.teacher,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ],
-                ),
-                const Gap(2),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.room,
-                      // color: Colors.blue,
-                      size: 16,
-                    ),
-                    const Gap(4),
-                    Text(
-                      widget.ap.room,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.timer,
-                      color: Colors.green,
-                      size: 16,
-                    ),
-                    const Gap(4),
-                    Text(
-                      '${DateFormat('HH:mm').format(widget.ap.startTime)} - ${DateFormat('HH:mm').format(widget.ap.endTime)}',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.payments_rounded,
-                      size: 16,
-                    ),
-                    const Gap(4),
-                    RichText(
-                      text: TextSpan(
-                        text: 'Full phí: ',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.black),
-                        children: [
-                          TextSpan(
-                            text: '${widget.ap.studentFullFee}',
-                            style: const TextStyle(fontWeight: FontWeight.normal),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const Gap(2),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.school_rounded,
-                      size: 16,
-                    ),
-                    const Gap(4),
-                    RichText(
-                      text: TextSpan(
-                        text: 'Học thử: ',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.black),
-                        children: [
-                          TextSpan(
-                            text: '${widget.ap.studentTrial}',
-                            style: const TextStyle(fontWeight: FontWeight.normal),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const Gap(2),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.attach_money_rounded,
-                      size: 16,
-                    ),
-                    const Gap(4),
-                    RichText(
-                      text: TextSpan(
-                        text: 'Đặt cọc: ',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.black),
-                        children: [
-                          TextSpan(
-                            text: '${widget.ap.studentPrepaid}',
-                            style: const TextStyle(fontWeight: FontWeight.normal),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        height: 55,
+        child: PortalTarget(
+          visible: _showTooltip,
+          fit: StackFit.expand,
+          anchor: const Aligned(
+            follower: Alignment.topCenter,
+            target: Alignment.bottomCenter,
+            widthFactor: 1,
+            offset: Offset(0, 10),
           ),
-        ),
-        child: MouseRegion(
-          onEnter: (_) => setState(() => _showTooltip = true),
-          onExit: (_) => setState(() => _showTooltip = false),
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onDoubleTap: widget.ap.onDoubleTap,
+          portalFollower: MouseRegion(
+            onExit: (_) => setState(() => _showTooltip = false),
+            onEnter: (_) => setState(() => _showTooltip = true),
             child: Container(
-              margin: const EdgeInsets.only(bottom: 4),
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: Color.lerp(widget.ap.color, Colors.white, 0.8),
-                borderRadius: BorderRadius.circular(4),
-                border: Border(
-                  left: BorderSide(
-                    color: widget.ap.color, //Theme.of(context).primaryColor,
-                    width: 3,
-                  ),
-                ),
+                color: Colors.white,
+                boxShadow: [
+                  AppBoxShadow.ksSmallShadow(),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    widget.ap.className,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: DateFormat('HH:mm').format(widget.ap.startTime),
-                          style: const TextStyle(
-                            fontSize: 12,
-                          ),
-                        ),
-                        const TextSpan(
-                          text: ' - ',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                        TextSpan(
-                          text: widget.ap.teacher,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
+                  const Gap(4),
+                  Container(
+                    constraints: const BoxConstraints(
+                      maxWidth: 300,
+                      minWidth: 100,
                     ),
+                    child: Text(
+                      widget.ap.subject,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const Gap(2),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.book,
+                        // color: Colors.blue,
+                        size: 16,
+                      ),
+                      const Gap(4),
+                      Text(
+                        widget.ap.sessionName,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                  const Gap(2),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.person_2_rounded,
+                        // color: Colors.blue,
+                        size: 16,
+                      ),
+                      const Gap(4),
+                      Text(
+                        widget.ap.teacher,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                  const Gap(2),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.room,
+                        // color: Colors.blue,
+                        size: 16,
+                      ),
+                      const Gap(4),
+                      Text(
+                        widget.ap.room,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.timer,
+                        color: Colors.green,
+                        size: 16,
+                      ),
+                      const Gap(4),
+                      Text(
+                        '${DateFormat('HH:mm').format(widget.ap.startTime)} - ${DateFormat('HH:mm').format(widget.ap.endTime)}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.payments_rounded,
+                        size: 16,
+                      ),
+                      const Gap(4),
+                      RichText(
+                        text: TextSpan(
+                          text: 'Full phí: ',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.black),
+                          children: [
+                            TextSpan(
+                              text: '${widget.ap.studentFullFee}',
+                              style: const TextStyle(fontWeight: FontWeight.normal),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(2),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.school_rounded,
+                        size: 16,
+                      ),
+                      const Gap(4),
+                      RichText(
+                        text: TextSpan(
+                          text: 'Học thử: ',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.black),
+                          children: [
+                            TextSpan(
+                              text: '${widget.ap.studentTrial}',
+                              style: const TextStyle(fontWeight: FontWeight.normal),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(2),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.attach_money_rounded,
+                        size: 16,
+                      ),
+                      const Gap(4),
+                      RichText(
+                        text: TextSpan(
+                          text: 'Đặt cọc: ',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.black),
+                          children: [
+                            TextSpan(
+                              text: '${widget.ap.studentPrepaid}',
+                              style: const TextStyle(fontWeight: FontWeight.normal),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
           ),
-        ),
-      ),
-    );
+          child: MouseRegion(
+            onEnter: (_) => setState(() => _showTooltip = true),
+            onExit: (_) => setState(() => _showTooltip = false),
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onDoubleTap: widget.ap.onDoubleTap,
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 4),
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Color.lerp(widget.ap.color, Colors.white, 0.8),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border(
+                    left: BorderSide(
+                      color: widget.ap.color, //Theme.of(context).primaryColor,
+                      width: 3,
+                    ),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.ap.className,
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: DateFormat('HH:mm').format(widget.ap.startTime),
+                            style: const TextStyle(
+                              fontSize: 12,
+                            ),
+                          ),
+                          const TextSpan(
+                            text: ' - ',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          TextSpan(
+                            text: widget.ap.teacher,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ));
   }
 }
