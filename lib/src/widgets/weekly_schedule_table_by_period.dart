@@ -27,7 +27,7 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
   }
 
   Widget buildScheduleByPeriodWithBorder(List<WeeklySessionByPeriod> periods) {
-    final weekdays = ['Mon', 'Tue', 'Thu', 'Wed', 'Fri', 'Sat', 'Sun'];
+    final weekdays = ['Mon', 'Tue', 'Wed','Thu',  'Fri', 'Sat', 'Sun'];
 
     List<AppointmentMoon> getSession(List<List<AppointmentMoon>> session, int index) {
       if (session.length > index) return session[index];
