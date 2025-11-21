@@ -34,8 +34,17 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
       return [];
     }
 
-    const double appointmentHeight = 80;
+    const double appointmentHeight = 55;
     const double minRoomHeight = 60;
+
+    final today = DateTime.now();
+
+    final normalizedInit = DateTime(initDate.year, initDate.month, initDate.day);
+
+    final daysToSubtract = normalizedInit.weekday - DateTime.monday; // = weekday - 1
+    final startOfWeek = normalizedInit.subtract(Duration(days: daysToSubtract));
+
+    final weekDates = List<DateTime>.generate(7, (i) => startOfWeek.add(Duration(days: i)));
 
     return LayoutBuilder(builder: (context, constraints) {
       final totalWidth = constraints.maxWidth;
@@ -45,65 +54,98 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ===== HEADER =====
           Row(
             children: [
               Container(
                 width: fixedWidth,
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(14.5),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade400, width: 0.25),
+                  border: Border.all(color: Colors.grey.shade400, width: 0.3),
                 ),
                 child: const Text('CA HỌC', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
               Container(
                 width: fixedWidth,
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(14.5),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade400, width: 0.25),
+                  border: Border.all(color: Colors.grey.shade400, width: 0.3),
                 ),
                 child: const Text('PHÒNG HỌC', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
-              ...weekdays.map((d) => Container(
-                    width: dayWidth,
-                    padding: const EdgeInsets.all(8),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400, width: 0.25),
-                    ),
-                    child: Text(d, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  )),
+              ...List.generate(7, (i) {
+                final weekdayName = weekdays[i];
+                final date = weekDates[i];
+
+                final dateText = DateFormat('dd').format(date);
+
+                final isToday = date.year == today.year && date.month == today.month && date.day == today.day;
+
+                return Container(
+                  width: dayWidth,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade400, width: 0.3),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        weekdayName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: isToday
+                            ? BoxDecoration(
+                                color: Colors.orange,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.orange, width: 1.0),
+                              )
+                            : null,
+                        child: Text(
+                          dateText,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: isToday ? Colors.white : Colors.grey.shade700,
+                          ),
+                        ),
+                      ),
+                      const Gap(4),
+                    ],
+                  ),
+                );
+              }),
             ],
           ),
 
-          // ===== NỘI DUNG =====
           Expanded(
             child: SingleChildScrollView(
               child: Column(children: [
                 ...periods.map((period) {
-                  // Tính chiều cao từng phòng = số appointment nhiều nhất trong ngày của phòng
-                  // (Luôn chừa 1 slot cho morning nếu morning rỗng)
                   final roomHeights = period.session.map((room) {
-                    var maxSlots = 0;
+                    double maxHeight = 0;
 
-                    for (var day in weekdays) {
-                      var morningCount = getSession(room.session, 0).where((e) => DateFormat('E').format(e.startTime) == day).length;
+                    for (var dayIndex = 0; dayIndex < weekdays.length; dayIndex++) {
+                      final day = weekdays[dayIndex];
 
-                      var afternoonCount = getSession(room.session, 1).where((e) => DateFormat('E').format(e.startTime) == day).length;
+                      double dayHeight = 0;
 
-                      // Luôn chừa 1 ô cho morning nếu morning rỗng
-                      if (morningCount == 0) morningCount = 1;
+                      for (var sessionIndex = 0; sessionIndex < room.session.length; sessionIndex++) {
+                        final appointments = getSession(room.session, sessionIndex)
+                            .where((e) => DateFormat('E').format(e.startTime) == day)
+                            .toList();
 
-                      final totalSlots = morningCount + afternoonCount;
+                        final slotCount = appointments.isEmpty ? 1 : appointments.length;
 
-                      if (totalSlots > maxSlots) maxSlots = totalSlots;
+                        dayHeight += slotCount * appointmentHeight + 10; // +4 là gap padding
+                      }
+
+                      if (dayHeight > maxHeight) maxHeight = dayHeight;
                     }
 
-                    // đảm bảo tối thiểu 1 slot height
-                    final computed = maxSlots * appointmentHeight + 15;
-                    return computed < minRoomHeight ? minRoomHeight : computed;
+                    return maxHeight < minRoomHeight ? minRoomHeight : maxHeight + 20;
                   }).toList();
 
                   final totalPeriodHeight = roomHeights.fold(0.0, (sum, h) => sum + h);
@@ -111,7 +153,6 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
                   return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // ===== Cột Ca HỌC =====
                       Container(
                         width: fixedWidth,
                         height: totalPeriodHeight,
@@ -128,7 +169,6 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
                         child: Text(period.periodName, style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
                       ),
 
-                      // ===== Cột PHÒNG =====
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: List.generate(period.session.length, (i) {
@@ -152,7 +192,6 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
                         }),
                       ),
 
-                      // ===== Cột BUỔI HỌC THEO NGÀY =====
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: List.generate(period.session.length, (i) {
@@ -161,43 +200,60 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
 
                           return Row(
                             children: weekdays.map((day) {
-                              final morning = getSession(room.session, 0).where((e) => DateFormat('E').format(e.startTime) == day).toList();
-                              final afternoon = getSession(room.session, 1).where((e) => DateFormat('E').format(e.startTime) == day).toList();
-
-                              // NOTE: KHÔNG thay đổi height của cell ở đây — height phải bằng roomHeight đã tính
                               return Container(
                                 width: dayWidth,
                                 height: roomHeight,
                                 padding: const EdgeInsets.all(4),
                                 decoration: BoxDecoration(
                                   border: Border(
-                                    bottom:
-                                        BorderSide(color: i == period.session.length - 1 ? Colors.grey.shade800 : Colors.grey.shade400, width: 0.25),
+                                    bottom: BorderSide(
+                                      color: i == period.session.length - 1 ? Colors.grey.shade800 : Colors.grey.shade400,
+                                      width: 0.25,
+                                    ),
                                     top: BorderSide(color: Colors.grey.shade400, width: 0.25),
                                     right: BorderSide(color: Colors.grey.shade400, width: 0.25),
                                     left: BorderSide(color: Colors.grey.shade400, width: 0.25),
                                   ),
                                 ),
-                                // Tách rõ 2 khối Morning (ở trên) + Afternoon (ở dưới)
+
+                                /// Render N session blocks
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // MORNING: nếu rỗng -> chèn 1 slot trống (chiều cao = appointmentHeight)
-                                    if (morning.isEmpty) SizedBox(height: appointmentHeight) else ...morning.map((e) => _AppointmentItemView(ap: e)),
+                                  children: List.generate(room.session.length, (sessionIndex) {
+                                    final currentList =
+                                        getSession(room.session, sessionIndex).where((e) => DateFormat('E').format(e.startTime) == day).toList();
 
-                                    // Divider chỉ khi cả 2 buổi đều có dữ liệu
-                                    if (morning.isNotEmpty && afternoon.isNotEmpty) const Divider(height: 1, thickness: 1, color: Colors.grey),
-
-                                    Gap(4),
-                                    // AFTERNOON: render bình thường (không chèn slot nếu rỗng)
-                                    ...afternoon.map((e) => _AppointmentItemView(ap: e)),
-                                  ],
+                                    return SizedBox(
+                                      height: appointmentHeight + 12, // chiều cao cố định cho mỗi session block
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          const Gap(4),
+                                          // Nếu rỗng → chiếm slot, nếu có data → render full
+                                          Expanded(
+                                            child: currentList.isEmpty
+                                                ? const SizedBox.shrink() // trống nhưng vẫn chiếm height
+                                                : Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: currentList.map((e) => _AppointmentItemView(ap: e)).toList(),
+                                            ),
+                                          ),
+                                          const Gap(4),
+                                          // Divider giữa các session block
+                                          if (sessionIndex < room.session.length - 1)
+                                            const Divider(height: 1, thickness: 1)
+                                          else
+                                            const Gap(1),
+                                        ],
+                                      ),
+                                    );
+                                  }),
                                 ),
                               );
                             }).toList(),
                           );
                         }),
-                      ),
+                      )
                     ],
                   );
                 })
@@ -226,7 +282,7 @@ class _AppointmentItemViewState extends State<_AppointmentItemView> {
   Widget build(BuildContext context) {
     return Container(
         padding: const EdgeInsets.symmetric(horizontal: 6),
-        height: 55,
+        height: 53,
         child: PortalTarget(
           visible: _showTooltip,
           fit: StackFit.expand,
