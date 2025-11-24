@@ -119,7 +119,6 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
               }),
             ],
           ),
-
           Expanded(
             child: SingleChildScrollView(
               child: Column(children: [
@@ -133,9 +132,7 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
                       double dayHeight = 0;
 
                       for (var sessionIndex = 0; sessionIndex < room.session.length; sessionIndex++) {
-                        final appointments = getSession(room.session, sessionIndex)
-                            .where((e) => DateFormat('E').format(e.startTime) == day)
-                            .toList();
+                        final appointments = getSession(room.session, sessionIndex).where((e) => DateFormat('E').format(e.startTime) == day).toList();
 
                         final slotCount = appointments.isEmpty ? 1 : appointments.length;
 
@@ -168,7 +165,6 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
                         ),
                         child: Text(period.periodName, style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
                       ),
-
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: List.generate(period.session.length, (i) {
@@ -191,7 +187,6 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
                           );
                         }),
                       ),
-
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: List.generate(period.session.length, (i) {
@@ -224,26 +219,21 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
                                         getSession(room.session, sessionIndex).where((e) => DateFormat('E').format(e.startTime) == day).toList();
 
                                     return SizedBox(
-                                      height: appointmentHeight + 12, // chiều cao cố định cho mỗi session block
+                                      height: (currentList.isEmpty ? 1 : currentList.length) * appointmentHeight + 12,
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: <Widget>[
                                           const Gap(4),
-                                          // Nếu rỗng → chiếm slot, nếu có data → render full
                                           Expanded(
                                             child: currentList.isEmpty
-                                                ? const SizedBox.shrink() // trống nhưng vẫn chiếm height
+                                                ? const SizedBox.shrink()
                                                 : Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: currentList.map((e) => _AppointmentItemView(ap: e)).toList(),
-                                            ),
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: currentList.map((e) => _AppointmentItemView(ap: e)).toList(),
+                                                  ),
                                           ),
                                           const Gap(4),
-                                          // Divider giữa các session block
-                                          if (sessionIndex < room.session.length - 1)
-                                            const Divider(height: 1, thickness: 1)
-                                          else
-                                            const Gap(1),
+                                          if (sessionIndex < room.session.length - 1) const Divider(height: 1, thickness: 1) else const Gap(1),
                                         ],
                                       ),
                                     );
@@ -287,10 +277,10 @@ class _AppointmentItemViewState extends State<_AppointmentItemView> {
           visible: _showTooltip,
           fit: StackFit.expand,
           anchor: const Aligned(
-            follower: Alignment.topCenter,
-            target: Alignment.bottomCenter,
+            follower: Alignment.bottomCenter,
+            target: Alignment.topCenter,
             widthFactor: 1,
-            offset: Offset(0, 10),
+            offset: Offset(0, -10),
           ),
           portalFollower: MouseRegion(
             onExit: (_) => setState(() => _showTooltip = false),
