@@ -321,6 +321,23 @@ class _ApointmentWeekItemViewState extends State<ApointmentWeekItemView> {
                   ),
                 ),
               ),
+              if (widget.ap.colorLabel != null) Gap(2),
+              if (widget.ap.colorLabel != null)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.color_lens,
+                      // color: Colors.blue,
+                      size: 16,
+                    ),
+                    Gap(4),
+                    Text(
+                      widget.ap.colorLabel!,
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
               Gap(2),
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -562,6 +579,7 @@ class AppointmentMoon extends Appointment {
     super.notes,
     super.subject,
     this.onDoubleTap,
+    this.colorLabel,
   });
 
   String className;
@@ -573,6 +591,8 @@ class AppointmentMoon extends Appointment {
   int studentFullFee;
   int studentTrial;
   int studentPrepaid;
+
+  String? colorLabel;
 }
 
 class WeeklySessionByRoom {

@@ -310,6 +310,23 @@ class _AppointmentItemViewState extends State<_AppointmentItemView> {
                       ),
                     ),
                   ),
+                  if (widget.ap.colorLabel != null) const Gap(2),
+                  if (widget.ap.colorLabel != null)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.color_lens,
+                          // color: Colors.blue,
+                          size: 16,
+                        ),
+                        const Gap(4),
+                        Text(
+                          widget.ap.colorLabel!,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
                   const Gap(2),
                   Row(
                     mainAxisSize: MainAxisSize.min,
