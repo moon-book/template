@@ -13,6 +13,7 @@ class TextFieldUrlOrUploadImage extends StatefulWidget {
     this.uploadImage,
     this.dio,
     this.baseUrl,
+    this.showShadow = true,
   });
   TextEditingController? controller;
   String? hintText;
@@ -24,6 +25,7 @@ class TextFieldUrlOrUploadImage extends StatefulWidget {
   Future<String?> Function(Uint8List s)? uploadImage;
   Dio? dio;
   String? baseUrl;
+  final bool showShadow;
   @override
   State<TextFieldUrlOrUploadImage> createState() => _TextFieldUrlOrUploadImageState();
 }
@@ -91,9 +93,11 @@ class _TextFieldUrlOrUploadImageState extends State<TextFieldUrlOrUploadImage> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Colors.white,
-        boxShadow: [
-          AppBoxShadow.ksSmallShadow(),
-        ],
+        boxShadow: widget.showShadow
+            ? [
+                AppBoxShadow.ksSmallShadow(),
+              ]
+            : null,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -106,50 +110,56 @@ class _TextFieldUrlOrUploadImageState extends State<TextFieldUrlOrUploadImage> {
             dashPattern: [5, 5],
             strokeCap: StrokeCap.round,
             child: urlImage.isNotEmpty
-                ? Stack(
-                    children: [
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: ImagePreviewWidget(
-                          imageUrl: urlImage,
-                          constraints: widget.constraints,
-                          width: widget.width,
-                          height: widget.height,
-                          // width: 100,
-                          // height: 50,
+                ?   SizedBox(
+              height: 100,
+                  child: Stack(
+                      children: [
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: ImagePreviewWidget(
+                            imageUrl: urlImage,
+                            constraints: widget.constraints,
+                            width: widget.width,
+                            height: widget.height,
+                            // width: 100,
+                            // height: 50,
+                          ),
                         ),
-                      ),
-                      Positioned(
-                        top: 2,
-                        right: 2,
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              urlImage = '';
-                              controller.clear();
-                            });
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(1),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.cancel,
-                              color: Colors.red,
-                              size: 20,
+                        Positioned(
+                          top: 2,
+                          right: 2,
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                urlImage = '';
+                                controller.clear();
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(1),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.cancel,
+                                color: Colors.red,
+                                size: 20,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  )
-                : UploadImageWidget(
-                    getImageByte: (s, fileName) {
-                      uploadImage(s, fileName);
-                    },
-                  ),
+                      ],
+                    ),
+                )
+                : SizedBox(
+              height: 100,
+                  child: UploadImageWidget(
+                      getImageByte: (s, fileName) {
+                        uploadImage(s, fileName);
+                      },
+                    ),
+                ),
           ),
           const Gap(12),
           AppTextField(
@@ -157,6 +167,7 @@ class _TextFieldUrlOrUploadImageState extends State<TextFieldUrlOrUploadImage> {
             controller: controller,
             hintText: widget.hintText,
             backgroundColor: Colors.white,
+            maxLines: 1,
             borderColor: Colors.black12, showShadow: false,
             // title: widget.title,
             onChanged: (v) {

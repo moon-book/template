@@ -214,7 +214,7 @@ class _ChartMoonState<T, U> extends State<ChartMoon> {
         color: colorLine, // Mỗi dây có màu khác nhau
         name: lineName, // Đặt tên cho từng dây
         width: 2,
-        splineType: SplineType.cardinal, // Để có đường cong tự nhiên hơn
+        splineType: SplineType.natural, // Để có đường cong tự nhiên hơn
         dataLabelMapper: (ChartData report, _) => report.y!.toString(),
         markerSettings: const MarkerSettings(
           isVisible: true,

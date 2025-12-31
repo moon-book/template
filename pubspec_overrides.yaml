@@ -1,0 +1,4 @@
+# melos_managed_dependency_overrides: syncfusion_flutter_calendar
+dependency_overrides:
+  syncfusion_flutter_calendar:
+    path: lib/src/fork_package/syncfusion_flutter_calendar-27.2.5
