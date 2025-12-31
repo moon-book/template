@@ -21,6 +21,7 @@ class TimetableCalendartView extends StatefulWidget {
     this.onChangeDateFillter,
     this.initialSelectedDate,
     this.showRoomSessionByPeriod = false,
+    this.onTapClassroom,
   });
 
   final List<AppointmentMoon> appointments;
@@ -29,6 +30,7 @@ class TimetableCalendartView extends StatefulWidget {
   final void Function(DateTime? startDate, DateTime? endDate, bool filterByRoom)? onChangeDateFillter;
   final DateTime? initialSelectedDate;
   final bool showRoomSessionByPeriod;
+  final void Function(WeeklySessionByRoom)? onTapClassroom;
 
   @override
   State<TimetableCalendartView> createState() => _TimetableCalendartViewState();
@@ -89,6 +91,7 @@ class _TimetableCalendartViewState extends State<TimetableCalendartView> {
                   ? WeeklyScheduleTableByPeriod(
                       initDate: controller.displayDate ?? DateTime.now(),
                       listRoomSession: widget.listRoomSessionByPeriod,
+                onTapClassroom: widget.onTapClassroom,
                     )
                   : WeeklyScheduleTable(
                       initDate: controller.displayDate ?? DateTime.now(),

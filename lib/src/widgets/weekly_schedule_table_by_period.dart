@@ -12,10 +12,12 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
     required this.initDate,
     required this.listRoomSession,
     super.key,
+    this.onTapClassroom,
   });
 
   final DateTime initDate;
   final List<WeeklySessionByPeriod> listRoomSession;
+  final void Function(WeeklySessionByRoom)? onTapClassroom;
 
   @override
   Widget build(BuildContext context) {
@@ -170,20 +172,25 @@ class WeeklyScheduleTableByPeriod extends StatelessWidget {
                         children: List.generate(period.session.length, (i) {
                           final room = period.session[i];
                           final roomHeight = roomHeights[i];
-                          return Container(
-                            width: fixedWidth,
-                            height: roomHeight,
-                            alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: i == period.session.length - 1 ? Colors.grey.shade800 : Colors.grey.shade400, width: 0.25),
-                                top: BorderSide(color: Colors.grey.shade400, width: 0.25),
-                                right: BorderSide(color: Colors.grey.shade400, width: 0.25),
-                                left: BorderSide(color: Colors.grey.shade400, width: 0.25),
+                          return GestureDetector(
+                            onTap: () {
+                              onTapClassroom?.call(room);
+                            },
+                            child: Container(
+                              width: fixedWidth,
+                              height: roomHeight,
+                              alignment: Alignment.centerLeft,
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: i == period.session.length - 1 ? Colors.grey.shade800 : Colors.grey.shade400, width: 0.25),
+                                  top: BorderSide(color: Colors.grey.shade400, width: 0.25),
+                                  right: BorderSide(color: Colors.grey.shade400, width: 0.25),
+                                  left: BorderSide(color: Colors.grey.shade400, width: 0.25),
+                                ),
                               ),
+                              child: Text(room.roomName, style: const TextStyle(fontWeight: FontWeight.w500)),
                             ),
-                            child: Text(room.roomName, style: const TextStyle(fontWeight: FontWeight.w500)),
                           );
                         }),
                       ),
