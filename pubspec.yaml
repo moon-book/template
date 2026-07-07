@@ -40,7 +40,7 @@ dependencies:
   easy_sidemenu:
     git:
       url: https://github.com/giangdk/easy_sidemenu.git
-      ref: master
+      ref: 6840648b028aba9395bc0125e681c5bb5c41d9a3
 dev_dependencies:
   flutter_test:
     sdk: flutter
